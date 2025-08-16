@@ -6,7 +6,13 @@ try:
 except ImportError:
     from python_dotenv import load_dotenv
 
-load_dotenv()
+# Load environment variables from .env file if it exists
+try:
+    load_dotenv()
+except Exception as e:
+    # In containerized environments, .env might not exist
+    # Environment variables should be set directly
+    pass
 
 # Utility functions
 id_pattern = re.compile(r'^.\d+$')

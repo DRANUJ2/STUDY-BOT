@@ -52,14 +52,30 @@ def check_dependencies():
     return True
 
 def check_config():
-    """Check if configuration file exists"""
+    """Check if configuration is available (either .env file or environment variables)"""
+    # Check if .env file exists
     config_file = Path('.env')
-    if not config_file.exists():
-        print("⚠️  No .env file found")
-        print("Please copy env_template.txt to .env and configure it")
+    if config_file.exists():
+        print("✅ Configuration file (.env) found")
+        return True
+    
+    # Check if essential environment variables are set
+    essential_vars = ['API_ID', 'API_HASH', 'BOT_TOKEN']
+    missing_vars = []
+    
+    for var in essential_vars:
+        if not os.environ.get(var):
+            missing_vars.append(var)
+    
+    if missing_vars:
+        print("⚠️  No .env file found and missing essential environment variables:")
+        print(f"   Missing: {', '.join(missing_vars)}")
+        print("   Please either:")
+        print("   1. Copy env_template.txt to .env and configure it, or")
+        print("   2. Set the environment variables directly")
         return False
     
-    print("✅ Configuration file found")
+    print("✅ Essential environment variables are configured")
     return True
 
 def main():

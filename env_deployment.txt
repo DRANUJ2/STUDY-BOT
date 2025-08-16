@@ -1,0 +1,217 @@
+# Study Bot Deployment Environment Configuration
+# This file is for containerized deployments (Docker, Render, Heroku, etc.)
+# Set these environment variables in your deployment platform
+
+# ============================
+# Bot Information Configuration
+# ============================
+# ⭐ SESSION: Bot session name (can be any unique name)
+SESSION=StudyBot_Session
+
+# ⭐ API_ID: Your Telegram API ID from https://my.telegram.org/apps
+API_ID=your_api_id_here
+
+# ⭐ API_HASH: Your Telegram API Hash from https://my.telegram.org/apps
+API_HASH=your_api_hash_here
+
+# ⭐ BOT_TOKEN: Main bot token from @BotFather
+BOT_TOKEN=your_main_bot_token_here
+
+# ⭐ CONTENT_BOT_TOKEN: Content bot token from @BotFather (for file delivery)
+CONTENT_BOT_TOKEN=your_content_bot_token_here
+
+# ============================
+# Bot Settings Configuration
+# ============================
+# CACHE_TIME: How long to cache data (in seconds)
+CACHE_TIME=300
+
+# USE_CAPTION_FILTER: Enable/disable caption filtering for search
+USE_CAPTION_FILTER=True
+
+# INDEX_CAPTION: Save captions in database for search
+SAVE_CAPTION=True
+
+# CUSTOM_FILE_CAPTION: Custom caption template for files
+CUSTOM_FILE_CAPTION=
+
+# BATCH_FILE_CAPTION: Custom caption for batch files
+BATCH_FILE_CAPTION=
+
+# ============================
+# Study Bot Specific Settings
+# ============================
+# PM_ON: Allow users to use bot in private messages
+PM_ON=True
+
+# PM_FILTER: Enable PM filtering
+PM_FILTER=True
+
+# AUTO_SUGGESTION: Enable auto-suggestions for users
+AUTO_SUGGESTION=True
+
+# GAMIFICATION: Enable progress tracking and achievements
+GAMIFICATION=True
+
+# MULTI_LANGUAGE: Enable multi-language support
+MULTI_LANGUAGE=False
+
+# ============================
+# Images and Media
+# ============================
+# PICS: Welcome images (space-separated URLs)
+PICS=https://graph.org/file/56b5deb73f3b132e2bb73.jpg https://graph.org/file/5303692652d91d52180c2.jpg
+
+# NOR_IMG: Default image for no results
+NOR_IMG=https://graph.org/file/e20b5fdaf217252964202.jpg
+
+# MELCOW_PHOTO: Welcome photo for new users
+MELCOW_PHOTO=https://graph.org/file/56b5deb73f3b132e2bb73.jpg
+
+# MELCOW_NEW_USERS: Enable welcome message for new users
+MELCOW_NEW_USERS=False
+
+# SPELL_IMG: Image for spell check results
+SPELL_IMG=https://graph.org/file/13702ae26fb05df52667c.jpg
+
+# SUBSCRIPTION: Premium subscription image
+SUBSCRIPTION=https://graph.org/file/242b7f1b52743938d81f1.jpg
+
+# QR_CODE: QR code image for payments
+QR_CODE=https://graph.org/file/e419f801841c2ee3db0fc.jpg
+
+# OWNER_UPI_ID: Your UPI ID for payments
+OWNER_UPI_ID=
+
+# ============================
+# Database Configuration
+# ============================
+# ⭐ DATABASE_URI: MongoDB connection string
+DATABASE_URI=your_mongodb_connection_string_here
+
+# DATABASE_NAME: Database name
+DATABASE_NAME=studybot_db
+
+# ============================
+# Channel Configuration
+# ============================
+# ⭐ ADMINS: List of admin user IDs (space-separated)
+ADMINS=your_admin_id_here
+
+# ⭐ CHANNELS: List of channel IDs where bot will work (space-separated)
+CHANNELS=your_channel_id_here
+
+# ⭐ LOG_CHANNEL: Channel ID for bot logs
+LOG_CHANNEL=your_log_channel_id_here
+
+# ⭐ STUDY_CONTENT_CHANNELS: Channels containing study materials
+STUDY_CONTENT_CHANNELS=your_study_channel_ids_here
+
+# ⭐ PHYSICS_CHANNEL: Channel ID for Physics content
+PHYSICS_CHANNEL=your_physics_channel_id_here
+
+# ⭐ CHEMISTRY_CHANNEL: Channel ID for Chemistry content
+CHEMISTRY_CHANNEL=your_chemistry_channel_id_here
+
+# ⭐ BIOLOGY_CHANNEL: Channel ID for Biology content
+BIOLOGY_CHANNEL=your_biology_channel_id_here
+
+# ============================
+# Bot Usernames
+# ============================
+# ⭐ BOT_USERNAME: Your main bot username (without @)
+BOT_USERNAME=your_bot_username_here
+
+# ⭐ CONTENT_BOT_USERNAME: Your content bot username (without @)
+CONTENT_BOT_USERNAME=your_content_bot_username_here
+
+# ============================
+# Channel Links
+# ============================
+# ⭐ MAIN_CHANNEL: Your main channel link
+MAIN_CHANNEL=https://t.me/your_channel
+
+# ⭐ SUPPORT_GROUP: Your support group link
+SUPPORT_GROUP=https://t.me/your_support_group
+
+# ⭐ OWNER_LNK: Your personal Telegram link
+OWNER_LNK=https://t.me/your_username
+
+# ============================
+# Other Channel IDs
+# ============================
+# BIN_CHANNEL: Channel ID for deleted files
+BIN_CHANNEL=0
+
+# PREMIUM_LOGS: Channel ID for premium logs
+PREMIUM_LOGS=0
+
+# DELETE_CHANNELS: Channels to delete files from
+DELETE_CHANNELS=0
+
+# support_chat_id: Support chat ID
+SUPPORT_CHAT_ID=0
+
+# reqst_channel: Request channel ID
+REQST_CHANNEL_ID=0
+
+# ============================
+# Support Chat Links
+# ============================
+# SUPPORT_CHAT: Support chat link
+SUPPORT_CHAT=https://t.me/your_support_chat
+
+# INDEX_REQ_CHANNEL: Index request channel
+INDEX_REQ_CHANNEL=0
+
+# FORCE_SUB
+# auth_req_channels: Channels for force subscribe
+AUTH_REQ_CHANNELS=0
+
+# auth_channels: Auth channels
+AUTH_CHANNELS=0
+
+# ============================
+# Updates and File Store
+# ============================
+# UPDATES_CHANNEL: Updates channel
+UPDATES_CHANNEL=https://t.me/your_updates_channel
+
+# FILE_STORE_CHANNEL: File store channel
+FILE_STORE_CHANNEL=https://t.me/your_file_store
+
+# ============================
+# Watermark and Other Settings
+# ============================
+# WATERMARK_TEXT: Watermark text for files
+WATERMARK_TEXT=@your_username
+
+# ============================
+# Deployment Settings
+# ============================
+# ON_HEROKU: Set to True if deploying on Heroku
+ON_HEROKU=False
+
+# PORT: Port for web server (set by deployment platform)
+PORT=8080
+
+# ============================
+# Optional Features
+# ============================
+# ENABLE_WEB_SERVER: Enable web server for file downloads
+ENABLE_WEB_SERVER=True
+
+# ENABLE_REDIS: Enable Redis for caching
+ENABLE_REDIS=False
+
+# REDIS_URL: Redis connection URL
+REDIS_URL=redis://localhost:6379
+
+# ============================
+# Logging and Debug
+# ============================
+# LOG_LEVEL: Logging level (DEBUG, INFO, WARNING, ERROR)
+LOG_LEVEL=INFO
+
+# DEBUG_MODE: Enable debug mode
+DEBUG_MODE=False

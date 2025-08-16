@@ -93,6 +93,22 @@ python test_setup.py
 python start.py
 ```
 
+### 🐳 Containerized Deployment
+
+#### Docker Deployment
+```bash
+# Build the image
+docker build -t study-bot .
+
+# Run the container
+docker run -d --name study-bot study-bot
+```
+
+#### Render/Heroku Deployment
+1. **Set environment variables** in your deployment platform using `env_deployment.txt` as reference
+2. **Deploy using their respective methods**
+3. **No .env file needed** - environment variables are set directly in the platform
+
 ### 🔑 Configuration
 
 Create a `.env` file with the following variables:

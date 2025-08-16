@@ -60,6 +60,8 @@ downloads/
 README.md
 *.md
 docs/
+RENDER_DEPLOYMENT.md
+DOCKER_DEPLOYMENT.md
 
 # Development files
 setup.py
