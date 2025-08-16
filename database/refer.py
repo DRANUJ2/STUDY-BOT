@@ -16,15 +16,15 @@ class Referral(Document):
     
     referrer_id = fields.IntegerField(required=True, index=True)
     referred_id = fields.IntegerField(required=True, unique=True, index=True)
-    referrer_name = fields.StrField(required=True)
-    referred_name = fields.StrField(required=True)
-    referrer_username = fields.StrField()
-    referred_username = fields.StrField()
-    referral_code = fields.StrField(required=True, unique=True, index=True)
-    status = fields.StrField(default="pending", choices=["pending", "completed", "expired"])
+    referrer_name = fields.StringField(required=True)
+    referred_name = fields.StringField(required=True)
+    referrer_username = fields.StringField()
+    referred_username = fields.StringField()
+    referral_code = fields.StringField(required=True, unique=True, index=True)
+    status = fields.StringField(default="pending", choices=["pending", "completed", "expired"])
     bonus_claimed = fields.BooleanField(default=False)
-    bonus_amount = fields.IntField(default=0)
-    created_at = fields.DateTimeField(default=datetime.utcnow)
+    bonus_amount = fields.IntegerField(default=0)
+    created_at = fields.DateTimeField(default_factory=datetime.utcnow)
     completed_at = fields.DateTimeField()
     expires_at = fields.DateTimeField()
     
@@ -42,13 +42,13 @@ class ReferralCode(Document):
     """Referral code model for generating and managing codes"""
     
     user_id = fields.IntegerField(required=True, unique=True, index=True)
-    username = fields.StrField()
-    referral_code = fields.StrField(required=True, unique=True, index=True)
+    username = fields.StringField()
+    referral_code = fields.StringField(required=True, unique=True, index=True)
     is_active = fields.BooleanField(default=True)
-    max_uses = fields.IntField(default=-1)  # -1 means unlimited
-    current_uses = fields.IntField(default=0)
-    bonus_per_referral = fields.IntField(default=100)
-    created_at = fields.DateTimeField(default=datetime.utcnow)
+    max_uses = fields.IntegerField(default=-1)  # -1 means unlimited
+    current_uses = fields.IntegerField(default=0)
+    bonus_per_referral = fields.IntegerField(default=100)
+    created_at = fields.DateTimeField(default_factory=datetime.utcnow)
     last_used = fields.DateTimeField()
     
     class Meta:
@@ -65,12 +65,12 @@ class ReferralBonus(Document):
     
     user_id = fields.IntegerField(required=True, index=True)
     referral_id = fields.ReferenceField(Referral, required=True)
-    bonus_amount = fields.IntField(required=True)
-    bonus_type = fields.StrField(default="referral", choices=["referral", "signup", "activity"])
-    status = fields.StrField(default="pending", choices=["pending", "credited", "expired"])
+    bonus_amount = fields.IntegerField(required=True)
+    bonus_type = fields.StringField(default="referral", choices=["referral", "signup", "activity"])
+    status = fields.StringField(default="pending", choices=["pending", "credited", "expired"])
     credited_at = fields.DateTimeField()
     expires_at = fields.DateTimeField()
-    created_at = fields.DateTimeField(default=datetime.utcnow)
+    created_at = fields.DateTimeField(default_factory=datetime.utcnow)
     
     class Meta:
         collection_name = "referral_bonuses"

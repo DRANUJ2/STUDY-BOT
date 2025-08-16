@@ -66,6 +66,7 @@ DOCKER_DEPLOYMENT.md
 # Development files
 setup.py
 test_setup.py
+test_db_schema.py
 pytest.ini
 tox.ini
 .flake8
