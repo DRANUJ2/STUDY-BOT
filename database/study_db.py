@@ -1,5 +1,5 @@
 import logging
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from typing import Dict, List, Optional
 from pymongo.errors import DuplicateKeyError
 from umongo import Instance, Document, fields
@@ -43,7 +43,7 @@ class StudyFiles(Document):
     
     # Metadata
     uploaded_by = fields.IntField(required=True)
-    uploaded_at = fields.DateTimeField(default=datetime.utcnow)
+    uploaded_at = fields.DateTimeField(default=lambda: datetime.now(timezone.utc))
     is_active = fields.BoolField(default=True)
     
     class Meta:
@@ -68,7 +68,7 @@ class Batches(Document):
     subjects = fields.ListField(fields.StrField(), default=DEFAULT_SUBJECTS)
     teachers = fields.ListField(fields.StrField(), default=DEFAULT_TEACHERS)
     is_active = fields.BoolField(default=True)
-    created_at = fields.DateTimeField(default=datetime.utcnow)
+    created_at = fields.DateTimeField(default=lambda: datetime.now(timezone.utc))
     created_by = fields.IntField(required=True)
     
     class Meta:
@@ -87,7 +87,7 @@ class Chapters(Document):
     total_dpp = fields.IntField(default=0)
     total_notes = fields.IntField(default=0)
     is_active = fields.BoolField(default=True)
-    created_at = fields.DateTimeField(default=datetime.utcnow)
+    created_at = fields.DateTimeField(default=lambda: datetime.now(timezone.utc))
     
     class Meta:
         indexes = [
@@ -110,8 +110,8 @@ class Users(Document):
     total_downloads = fields.IntField(default=0)
     total_time_spent = fields.IntField(default=0)  # in minutes
     achievements = fields.ListField(fields.StrField(), default=[])
-    joined_at = fields.DateTimeField(default=datetime.utcnow)
-    last_active = fields.DateTimeField(default=datetime.utcnow)
+    joined_at = fields.DateTimeField(default=lambda: datetime.now(timezone.utc))
+    last_active = fields.DateTimeField(default=lambda: datetime.now(timezone.utc))
     banned = fields.BoolField(default=False)
     ban_reason = fields.StrField(allow_none=True)
     banned_by = fields.IntField(allow_none=True)
@@ -135,7 +135,7 @@ class StudySessions(Document):
     subject = fields.StrField(required=True)
     chapter_no = fields.StrField(required=True)
     content_type = fields.StrField(required=True)
-    start_time = fields.DateTimeField(default=datetime.utcnow)
+    start_time = fields.DateTimeField(default=lambda: datetime.now(timezone.utc))
     end_time = fields.DateTimeField(allow_none=True)
     duration = fields.IntField(default=0)  # in minutes
     files_accessed = fields.ListField(fields.StrField(), default=[])
@@ -164,7 +164,7 @@ class ContentAnalytics(Document):
     rating = fields.FloatField(default=0.0)
     total_ratings = fields.IntField(default=0)
     feedback = fields.ListField(fields.DictField(), default=[])
-    last_accessed = fields.DateTimeField(default=datetime.utcnow)
+    last_accessed = fields.DateTimeField(default=lambda: datetime.now(timezone.utc))
     
     class Meta:
         indexes = [
@@ -186,7 +186,7 @@ class BotSettings(Document):
     setting_type = fields.StrField(required=True)  # string, int, bool, list, dict
     description = fields.StrField(allow_none=True)
     updated_by = fields.IntField(required=True)
-    updated_at = fields.DateTimeField(default=datetime.utcnow)
+    updated_at = fields.DateTimeField(default=lambda: datetime.now(timezone.utc))
     
     class Meta:
         indexes = [("setting_name",), ("updated_at",)]
@@ -198,18 +198,23 @@ class JoinRequests(Document):
     request_id = fields.StrField(attribute="_id")
     user_id = fields.IntField(required=True)
     chat_id = fields.IntField(required=True)
-    user_name = fields.StrField(required=True)
     chat_title = fields.StrField(required=True)
-    status = fields.StrField(default="pending")  # pending, approved, declined
-    timestamp = fields.DateTimeField(default=datetime.utcnow)
-    approved_by = fields.IntField(allow_none=True)
-    declined_by = fields.IntField(allow_none=True)
+    chat_type = fields.StrField(required=True)
+    user_first_name = fields.StrField(required=True)
+    user_last_name = fields.StrField(allow_none=True)
+    user_username = fields.StrField(allow_none=True)
+    status = fields.StrField(default="pending")  # pending, approved, rejected
+    requested_at = fields.DateTimeField(default=lambda: datetime.now(timezone.utc))
+    processed_at = fields.DateTimeField(allow_none=True)
+    processed_by = fields.IntField(allow_none=True)
+    notes = fields.StrField(allow_none=True)
     
     class Meta:
         indexes = [
-            ("user_id", "chat_id"),
+            ("user_id",),
+            ("chat_id",),
             ("status",),
-            ("timestamp",)
+            ("requested_at",)
         ]
         collection_name = "join_requests"
 
@@ -221,8 +226,8 @@ class Chats(Document):
     chat_type = fields.StrField(required=True)  # group, supergroup, channel
     is_active = fields.BoolField(default=True)
     member_count = fields.IntField(default=0)
-    created_at = fields.DateTimeField(default=datetime.utcnow)
-    last_activity = fields.DateTimeField(default=datetime.utcnow)
+    created_at = fields.DateTimeField(default=lambda: datetime.now(timezone.utc))
+    last_activity = fields.DateTimeField(default=lambda: datetime.now(timezone.utc))
     
     class Meta:
         indexes = [
@@ -242,8 +247,8 @@ class GroupSettings(Document):
     pm_filter = fields.BoolField(default=True)
     auto_search = fields.BoolField(default=True)
     welcome_message = fields.BoolField(default=True)
-    created_at = fields.DateTimeField(default=datetime.utcnow)
-    updated_at = fields.DateTimeField(default=datetime.utcnow)
+    created_at = fields.DateTimeField(default=lambda: datetime.now(timezone.utc))
+    updated_at = fields.DateTimeField(default=lambda: datetime.now(timezone.utc))
     
     class Meta:
         indexes = [("group_id",), ("auto_filter",)]
@@ -406,7 +411,7 @@ async def update_user_progress(user_id, batch_name, subject, chapter_no,
             
         user.study_progress[progress_key][content_type] = user.study_progress[progress_key].get(content_type, 0) + 1
         user.total_time_spent += duration
-        user.last_active = datetime.utcnow()
+        user.last_active = datetime.now(timezone.utc)
         
         await user.commit()
         return True
@@ -492,9 +497,7 @@ async def add_user(user_id, first_name, last_name=None, username=None):
             user_id=user_id,
             first_name=first_name,
             last_name=last_name,
-            username=username,
-            joined_at=datetime.utcnow(),
-            last_active=datetime.utcnow()
+            username=username
         )
         
         await user_doc.commit()
@@ -596,7 +599,7 @@ async def ban_user(user_id, reason, banned_by):
         user.banned = True
         user.ban_reason = reason
         user.banned_by = banned_by
-        user.banned_at = datetime.utcnow()
+        user.banned_at = datetime.now(timezone.utc)
         
         await user.commit()
         logger.info(f"User banned: {user_id}")
@@ -648,11 +651,14 @@ async def add_join_request(user_id, chat_id, user_name, chat_title):
     """Add join request"""
     try:
         request_doc = JoinRequests(
-            request_id=f"req_{user_id}_{chat_id}_{int(datetime.utcnow().timestamp())}",
+            request_id=f"req_{user_id}_{chat_id}_{int(datetime.now(timezone.utc).timestamp())}",
             user_id=user_id,
             chat_id=chat_id,
-            user_name=user_name,
-            chat_title=chat_title
+            user_first_name=user_name.split(' ')[0], # Assuming user_name is "First Last"
+            user_last_name=user_name.split(' ')[1] if len(user_name.split(' ')) > 1 else None,
+            user_username=None, # Not available in this context
+            chat_title=chat_title,
+            chat_type="group" # Assuming it's a group for now
         )
         
         await request_doc.commit()
@@ -686,7 +692,7 @@ async def update_join_request(user_id, chat_id, update_data):
 async def get_pending_join_requests():
     """Get pending join requests"""
     try:
-        cursor = JoinRequests.find({"status": "pending"}).sort("timestamp", -1)
+        cursor = JoinRequests.find({"status": "pending"}).sort("requested_at", -1)
         requests = await cursor.to_list(length=None)
         return requests
     except Exception as e:
@@ -696,7 +702,7 @@ async def get_pending_join_requests():
 async def get_all_join_requests():
     """Get all join requests"""
     try:
-        cursor = JoinRequests.find({}).sort("timestamp", -1)
+        cursor = JoinRequests.find({}).sort("requested_at", -1)
         requests = await cursor.to_list(length=None)
         return requests
     except Exception as e:
@@ -709,9 +715,7 @@ async def add_chat(chat_id, chat_title, chat_type="group"):
         chat_doc = Chats(
             chat_id=chat_id,
             chat_title=chat_title,
-            chat_type=chat_type,
-            created_at=datetime.utcnow(),
-            last_activity=datetime.utcnow()
+            chat_type=chat_type
         )
         
         await chat_doc.commit()
@@ -794,7 +798,7 @@ async def save_group_settings(group_id, **kwargs):
             if hasattr(settings, key):
                 setattr(settings, key, value)
         
-        settings.updated_at = datetime.utcnow()
+        settings.updated_at = datetime.now(timezone.utc)
         await settings.commit()
         return True
         

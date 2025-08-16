@@ -2,7 +2,7 @@
 pyrogram==2.0.106
 tgcrypto==1.2.5
 motor==3.3.2
-umongo==3.5.1
+umongo==2.2.0
 pymongo==4.6.0
 aiohttp==3.9.1
 asyncio==3.4.3
