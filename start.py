@@ -19,9 +19,9 @@ def setup_logging():
     """Setup logging configuration"""
     logging.basicConfig(
         level=logging.INFO,
-        format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
+        format=\'%(asctime)s - %(name)s - %(levelname)s - %(message)s\',
         handlers=[
-            logging.FileHandler('study_bot.log'),
+            logging.FileHandler(\'study_bot.log\'),
             logging.StreamHandler(sys.stdout)
         ]
     )
@@ -29,27 +29,27 @@ def setup_logging():
 def check_dependencies():
     """Check if all required dependencies are available"""
     required_modules = [
-        'pyrogram',
-        'umongo',
-        'aiohttp',
-        'pytz'
+        \'pyrogram\',
+        \'umongo\',
+        \'aiohttp\',
+        \'pytz\'
     ]
     
     missing_modules = []
     for module in required_modules:
         try:
-            __import__(module )
+            __import__(module)
         except ImportError:
             missing_modules.append(module)
 
-    # Check motor separately as it's imported as motor.motor_asyncio
+    # Check motor separately as it\'s imported as motor.motor_asyncio
     try:
         from motor import motor_asyncio
     except ImportError:
         missing_modules.append("motor")
 
     if missing_modules:
-        print(f"❌ Missing required modules: {', '.join(missing_modules)}")
+        print(f"❌ Missing required modules: {\', \'.join(missing_modules)}")
         print("Please install them using: pip install -r requirements.txt")
         return False
     
@@ -59,13 +59,13 @@ def check_dependencies():
 def check_config():
     """Check if configuration is available (either .env file or environment variables)"""
     # Check if .env file exists
-    config_file = Path('.env')
+    config_file = Path(\".env\")
     if config_file.exists():
         print("✅ Configuration file (.env) found")
         return True
     
     # Check if essential environment variables are set
-    essential_vars = ['API_ID', 'API_HASH', 'BOT_TOKEN']
+    essential_vars = [\'API_ID\', \'API_HASH\', \'BOT_TOKEN\']
     missing_vars = []
     
     for var in essential_vars:
@@ -74,7 +74,7 @@ def check_config():
     
     if missing_vars:
         print("⚠️  No .env file found and missing essential environment variables:")
-        print(f"   Missing: {', '.join(missing_vars)}")
+        print(f"   Missing: {\', \'.join(missing_vars)}")
         print("   Please either:")
         print("   1. Copy env_template.txt to .env and configure it, or")
         print("   2. Set the environment variables directly")
@@ -123,3 +123,4 @@ def main():
 
 if __name__ == "__main__":
     main()
+
