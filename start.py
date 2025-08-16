@@ -30,7 +30,6 @@ def check_dependencies():
     """Check if all required dependencies are available"""
     required_modules = [
         'pyrogram',
-        'motor',
         'umongo',
         'aiohttp',
         'pytz'
@@ -39,10 +38,16 @@ def check_dependencies():
     missing_modules = []
     for module in required_modules:
         try:
-            __import__(module)
+            __import__(module )
         except ImportError:
             missing_modules.append(module)
-    
+
+    # Check motor separately as it's imported as motor.motor_asyncio
+    try:
+        from motor import motor_asyncio
+    except ImportError:
+        missing_modules.append("motor")
+
     if missing_modules:
         print(f"❌ Missing required modules: {', '.join(missing_modules)}")
         print("Please install them using: pip install -r requirements.txt")
