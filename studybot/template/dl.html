@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Study Bot - Download</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: #333;
+            min-height: 100vh;
+        }
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            overflow: hidden;
+        }
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+        .header h1 {
+            margin: 0;
+            font-size: 2.5em;
+            font-weight: 300;
+        }
+        .header p {
+            margin: 10px 0 0 0;
+            opacity: 0.9;
+            font-size: 1.1em;
+        }
+        .content {
+            padding: 40px;
+        }
+        .file-info {
+            background: #f8f9fa;
+            border-radius: 10px;
+            padding: 25px;
+            margin-bottom: 30px;
+            border-left: 5px solid #667eea;
+        }
+        .file-info h3 {
+            margin: 0 0 15px 0;
+            color: #667eea;
+        }
+        .info-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+        .info-item {
+            background: white;
+            padding: 15px;
+            border-radius: 8px;
+            border: 1px solid #e9ecef;
+        }
+        .info-item strong {
+            color: #495057;
+            display: block;
+            margin-bottom: 5px;
+        }
+        .download-section {
+            text-align: center;
+            padding: 30px;
+            background: #f8f9fa;
+            border-radius: 10px;
+        }
+        .download-btn {
+            display: inline-block;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 15px 40px;
+            text-decoration: none;
+            border-radius: 50px;
+            font-size: 1.2em;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+        .download-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(102, 126, 234, 0.6);
+        }
+        .features {
+            margin-top: 30px;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+        }
+        .feature {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            text-align: center;
+            border: 1px solid #e9ecef;
+            transition: transform 0.3s ease;
+        }
+        .feature:hover {
+            transform: translateY(-5px);
+        }
+        .feature-icon {
+            font-size: 2.5em;
+            margin-bottom: 15px;
+            color: #667eea;
+        }
+        .footer {
+            background: #343a40;
+            color: white;
+            text-align: center;
+            padding: 20px;
+            font-size: 0.9em;
+        }
+        .footer a {
+            color: #667eea;
+            text-decoration: none;
+        }
+        @media (max-width: 768px) {
+            .container {
+                margin: 10px;
+                border-radius: 10px;
+            }
+            .header {
+                padding: 20px;
+            }
+            .header h1 {
+                font-size: 2em;
+            }
+            .content {
+                padding: 20px;
+            }
+            .info-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>📚 Study Bot</h1>
+            <p>Your Personal Learning Companion</p>
+        </div>
+        
+        <div class="content">
+            <div class="file-info">
+                <h3>📁 File Information</h3>
+                <div class="info-grid">
+                    <div class="info-item">
+                        <strong>📝 File Name</strong>
+                        <span>{{ file_name }}</span>
+                    </div>
+                    <div class="info-item">
+                        <strong>📏 File Size</strong>
+                        <span>{{ file_size }}</span>
+                    </div>
+                    <div class="info-item">
+                        <strong>📅 Upload Date</strong>
+                        <span>{{ upload_date }}</span>
+                    </div>
+                    <div class="info-item">
+                        <strong>🔗 File Type</strong>
+                        <span>{{ file_type }}</span>
+                    </div>
+                </div>
+                
+                {% if file_description %}
+                <div class="info-item" style="grid-column: 1 / -1;">
+                    <strong>📄 Description</strong>
+                    <p>{{ file_description }}</p>
+                </div>
+                {% endif %}
+            </div>
+            
+            <div class="download-section">
+                <h3>⬇️ Download File</h3>
+                <p>Click the button below to download your study material</p>
+                <a href="{{ download_link }}" class="download-btn">
+                    📥 Download Now
+                </a>
+            </div>
+            
+            <div class="features">
+                <div class="feature">
+                    <div class="feature-icon">🎯</div>
+                    <h4>Smart Learning</h4>
+                    <p>Personalized study materials based on your progress</p>
+                </div>
+                <div class="feature">
+                    <div class="feature-icon">📊</div>
+                    <h4>Progress Tracking</h4>
+                    <p>Monitor your learning journey with detailed analytics</p>
+                </div>
+                <div class="feature">
+                    <div class="feature-icon">🔍</div>
+                    <h4>Easy Search</h4>
+                    <p>Find exactly what you need with powerful search</p>
+                </div>
+            </div>
+        </div>
+        
+        <div class="footer">
+            <p>Powered by <a href="https://t.me/StudyBot">Study Bot</a> | Made with ❤️ for students</p>
+        </div>
+    </div>
+</body>
+</html>

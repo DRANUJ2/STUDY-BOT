@@ -1,0 +1,215 @@
+# ========================================
+# STUDY BOT ENVIRONMENT VARIABLES TEMPLATE
+# ========================================
+# Copy this file to .env and fill in your values
+# Remove the # from lines you want to use
+
+# ========================================
+# ⭐ MUST FILL - BOT CREDENTIALS ⭐
+# ========================================
+# Get these from https://my.telegram.org/apps
+API_ID=12345678
+API_HASH=your_api_hash_here
+
+# Get these from @BotFather
+BOT_TOKEN=1234567890:ABCdefGHIjklMNOpqrsTUVwxyz
+CONTENT_BOT_TOKEN=1234567890:ABCdefGHIjklMNOpqrsTUVwxyz
+
+# ========================================
+# ⭐ MUST FILL - ADMIN & CHANNELS ⭐
+# ========================================
+# Your Telegram user ID (get from @userinfobot)
+ADMINS=123456789 987654321
+
+# Channel IDs where bot will work (get from @userinfobot)
+CHANNELS=-1001234567890 -1009876543210
+
+# Channel for bot logs
+LOG_CHANNEL=-1001234567890
+
+# ========================================
+# ⭐ MUST FILL - STUDY CONTENT CHANNELS ⭐
+# ========================================
+# Channels containing your study materials
+STUDY_CONTENT_CHANNELS=-1001234567890 -1009876543210
+
+# Individual subject channels
+PHYSICS_CHANNEL=-1001234567890
+CHEMISTRY_CHANNEL=-1001234567890
+BIOLOGY_CHANNEL=-1001234567890
+
+# ========================================
+# ⭐ MUST FILL - BOT INFORMATION ⭐
+# ========================================
+# Your bot usernames (without @)
+BOT_USERNAME=YourStudyBot
+CONTENT_BOT_USERNAME=YourContentBot
+
+# Your channel and group links
+MAIN_CHANNEL=https://t.me/your_channel
+SUPPORT_GROUP=https://t.me/your_support_group
+OWNER_LNK=https://t.me/your_username
+
+# ========================================
+# ⭐ MUST FILL - DATABASE ⭐
+# ========================================
+# MongoDB connection string
+DATABASE_URI=mongodb+srv://username:password@cluster.mongodb.net/database?retryWrites=true&w=majority
+
+# ========================================
+# OPTIONAL - FORCE SUBSCRIBE ⭐
+# ========================================
+# Channels users must join to use bot
+AUTH_CHANNEL=-1001234567890
+AUTH_REQ_CHANNELS=-1001234567890
+AUTH_CHANNELS=-1001234567890
+
+# ========================================
+# OPTIONAL - PREMIUM FEATURES ⭐
+# ========================================
+# Your UPI ID for payments
+OWNER_UPI_ID=your_upi_id@bank
+
+# ========================================
+# OPTIONAL - WEB SERVER ⭐
+# ========================================
+# Set to True if deploying on Heroku
+ON_HEROKU=False
+
+# ========================================
+# OPTIONAL - CACHE & PERFORMANCE ⭐
+# ========================================
+# Redis URL (optional, for caching)
+REDIS_URL=redis://localhost:6379
+
+# ========================================
+# OPTIONAL - SECURITY ⭐
+# ========================================
+# Encryption key for sensitive data
+ENCRYPTION_KEY=your_secret_key_here
+
+# ========================================
+# OPTIONAL - FEATURE TOGGLES ⭐
+# ========================================
+# Enable/disable various features
+PM_ON=True
+PM_FILTER=True
+AUTO_SUGGESTION=True
+GAMIFICATION=True
+MULTI_LANGUAGE=False
+IMDB=False
+AUTO_DELETE=True
+WELCOME=True
+AUTO_FILTER=True
+AUTO_SEARCH=True
+SPELL_CHECK_REPLY=True
+MAX_BTN=True
+LONG_IMDB_DESCRIPTION=False
+LINK_MODE=False
+PROTECT_CONTENT=False
+PUBLIC_FILE_STORE=True
+
+# ========================================
+# OPTIONAL - STUDY BOT FEATURES ⭐
+# ========================================
+# Enable advanced features
+AUTO_TAGGING=True
+BULK_UPLOAD=True
+UPDATE_NOTIFICATIONS=True
+FULL_TEXT_SEARCH=True
+HYBRID_STORAGE=True
+IS_VERIFY=False
+
+# ========================================
+# OPTIONAL - TUTORIAL LINKS ⭐
+# ========================================
+# Links for verification system
+TUTORIAL=https://t.me/your_tutorial
+TUTORIAL_2=https://t.me/your_tutorial2
+TUTORIAL_3=https://t.me/your_tutorial3
+
+# ========================================
+# OPTIONAL - IMAGES & MEDIA ⭐
+# ========================================
+# Welcome and other images
+PICS=https://graph.org/file/image1.jpg https://graph.org/file/image2.jpg
+NOR_IMG=https://graph.org/file/nor_img.jpg
+MELCOW_PHOTO=https://graph.org/file/welcome.jpg
+SPELL_IMG=https://graph.org/file/spell.jpg
+SUBSCRIPTION=https://graph.org/file/subscription.jpg
+QR_CODE=https://graph.org/file/qr_code.jpg
+FSUB_PICS=https://graph.org/file/fsub1.jpg https://graph.org/file/fsub2.jpg
+
+# ========================================
+# OPTIONAL - CAPTIONS & TEXT ⭐
+# ========================================
+# Custom captions for files
+CUSTOM_FILE_CAPTION=📚 Study Material: {file_name}
+BATCH_FILE_CAPTION=📚 Batch: {file_name}
+CUSTOM_QUERY_CAPTION=🔍 Search Result: {file_name}
+
+# ========================================
+# OPTIONAL - LIMITS & TIMING ⭐
+# ========================================
+# Various limits and timeouts
+CACHE_TIME=300
+DELETE_TIME=300
+CHAT_LIMIT=10
+MAX_B_TN=5
+MAX_FILE_SIZE=2097152000
+CHUNK_SIZE=52428800
+CACHE_EXPIRY=3600
+RATE_LIMIT=10
+MAX_REQUESTS=100
+
+# ========================================
+# OPTIONAL - CHANNEL IDs ⭐
+# ========================================
+# Additional channel configurations
+BIN_CHANNEL=-1001234567890
+PREMIUM_LOGS=-1001234567890
+DELETE_CHANNELS=-1001234567890
+SUPPORT_CHAT_ID=-1001234567890
+REQST_CHANNEL_ID=-1001234567890
+FILE_STORE_CHANNEL=-1001234567890
+UPDATES_CHANNEL=-1001234567890
+
+# ========================================
+# OPTIONAL - LINKS ⭐
+# ========================================
+# Additional links
+SUPPORT_CHAT=https://t.me/your_support
+INVITE_LINK=https://t.me/your_bot?start=invite
+MAIN_CHANNEL=https://t.me/your_main_channel
+
+# ========================================
+# OPTIONAL - WATERMARK & SECURITY ⭐
+# ========================================
+# Watermark text for files
+WATERMARK_TEXT=📚 Study Bot
+
+# ========================================
+# OPTIONAL - MULTIPLE DATABASE ⭐
+# ========================================
+# Enable multiple database support
+MULTIPLE_DB=False
+DATABASE_URI2=mongodb+srv://username:password@cluster2.mongodb.net/database2?retryWrites=true&w=majority
+DB_CHANGE_LIMIT=432
+
+# ========================================
+# OPTIONAL - WEB SERVER ⭐
+# ========================================
+# Web server configuration
+PORT=8080
+
+# ========================================
+# NOTES:
+# ========================================
+# 1. Replace all placeholder values with your actual values
+# 2. Keep sensitive information like tokens and database URIs secure
+# 3. Test the bot with minimal configuration first
+# 4. Add more features gradually
+# 5. Use True/False for boolean values, not "True"/"False"
+# 6. Channel IDs should start with -100
+# 7. User IDs should be plain numbers
+# 8. Remove lines you don't need (comment them with #)

@@ -1,0 +1,20 @@
+build:
+  docker:
+    web: Dockerfile
+    worker: Dockerfile
+
+release:
+  command:
+    - python -c "from database.study_db import init_db; import asyncio; asyncio.run(init_db())"
+
+formation:
+  web:
+    quantity: 1
+    size: basic
+  worker:
+    quantity: 1
+    size: basic
+
+env:
+  ON_HEROKU: true
+  PORT: 8080
