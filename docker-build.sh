@@ -17,6 +17,11 @@ fi
 echo "🔨 Building Docker image..."
 docker build -t study-bot:latest .
 
+envVars:
+  - key: DOCKER_BUILDKIT
+    value: "0"
+
+
 if [ $? -eq 0 ]; then
     echo "✅ Docker image built successfully!"
     
