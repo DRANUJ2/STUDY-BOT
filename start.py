@@ -48,6 +48,18 @@ def check_dependencies():
         print("Please install them using: pip install -r requirements.txt")
         return False
     
+    # Version compatibility checks
+    try:
+        import marshmallow
+        mm_major = int(getattr(marshmallow, "__version__", "3").split(".")[0])
+        if mm_major >= 4:
+            print("❌ Incompatible marshmallow version detected.")
+            print("   Please use marshmallow<4 (we pin 3.x in requirements) for umongo compatibility.")
+            return False
+    except Exception as e:
+        # If marshmallow isn't importable here, it will be caught above; ignore any other parsing issues
+        pass
+    
     print("✅ All required dependencies are available")
     return True
 
