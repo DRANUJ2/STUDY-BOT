@@ -1,9 +1,10 @@
-import motor.motor_asyncio
-from datetime import datetime, timedelta
-import pytz
-from pymongo.errors import DuplicateKeyError
-from typing import Dict, List, Optional
 import logging
+from datetime import datetime, timedelta, timezone
+from typing import Dict, List, Optional
+from pymongo.errors import DuplicateKeyError
+from umongo import Instance, Document, fields
+from motor.motor_asyncio import AsyncIOMotorClient
+from config import *
 
 logger = logging.getLogger(__name__)
 
@@ -44,7 +45,7 @@ class Database:
             {'user_id': user_id},
             {
                 '$addToSet': {'channels': channel_id},
-                '$setOnInsert': {'created_at': datetime.utcnow()}
+                '$setOnInsert': {'created_at': datetime.now(timezone.utc)}
             },
             upsert=True
         )
@@ -166,7 +167,7 @@ class Database:
                     'members': {
                         'user_id': user_id,
                         'username': username,
-                        'joined_at': datetime.utcnow()
+                        'joined_at': datetime.now(timezone.utc)
                     }
                 }
             },
@@ -234,7 +235,7 @@ class Database:
             'user_name': user_name,
             'chat_title': chat_title,
             'status': 'pending',
-            'timestamp': datetime.utcnow()
+            'timestamp': datetime.now(timezone.utc)
         }
         await self.join_requests.insert_one(join_request)
 
@@ -432,7 +433,7 @@ class Database:
         """Add user activity"""
         activity = {
             'type': activity_type,
-            'timestamp': datetime.utcnow(),
+            'timestamp': datetime.now(timezone.utc),
             'details': details or {}
         }
         await self.col.update_one(
@@ -442,7 +443,7 @@ class Database:
 
     async def get_chat_activity(self, chat_id, days=7):
         """Get chat activity for specified days"""
-        cutoff_date = datetime.utcnow() - timedelta(days=days)
+        cutoff_date = datetime.now(timezone.utc) - timedelta(days=days)
         group = await self.grp.find_one({'id': int(chat_id)})
         if group and 'activity' in group:
             return [act for act in group['activity'] if act.get('timestamp', datetime.min) > cutoff_date]
@@ -452,7 +453,7 @@ class Database:
         """Add chat activity"""
         activity = {
             'type': activity_type,
-            'timestamp': datetime.utcnow(),
+            'timestamp': datetime.now(timezone.utc),
             'details': details or {}
         }
         await self.grp.update_one(
@@ -489,7 +490,7 @@ class Database:
     async def cleanup_old_data(self, days_old=30):
         """Clean up old data from database"""
         try:
-            cutoff_date = datetime.utcnow() - timedelta(days=days_old)
+            cutoff_date = datetime.now(timezone.utc) - timedelta(days=days_old)
             
             # Clean old join requests
             old_requests = await self.join_requests.delete_many({
@@ -520,7 +521,7 @@ class Database:
             # This is a basic backup implementation
             # In production, you might want to use MongoDB's built-in backup tools
             backup_data = {
-                'timestamp': datetime.utcnow(),
+                'timestamp': datetime.now(timezone.utc),
                 'users_count': await self.total_users_count(),
                 'groups_count': await self.total_chat_count(),
                 'backup_type': 'manual'
