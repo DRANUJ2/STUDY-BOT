@@ -223,7 +223,7 @@ if instance:
         """Collection for bot configuration and settings"""
         setting_id = fields.StringField(attribute="_id")
         setting_name = fields.StringField(required=True, unique=True)
-        setting_value = fields.RawField(required=True)
+        setting_value = fields.DictField(required=True)
         setting_type = fields.StringField(required=True)  # string, int, bool, list, dict
         description = fields.StringField(allow_none=True)
         updated_by = fields.IntegerField(required=True)
