@@ -68,9 +68,12 @@ async def anuj_command(client: Client, message: Message):
             await create_batch(batch_name, created_by=message.from_user.id)
             batch_info = await get_batch_info(batch_name)
         
+        # Use default subjects if batch info is still not available
+        subjects = getattr(batch_info, 'subjects', DEFAULT_SUBJECTS) if batch_info else DEFAULT_SUBJECTS
+        
         # Create batch selection keyboard
         keyboard = []
-        for subject in batch_info.subjects:
+        for subject in subjects:
             keyboard.append([InlineKeyboardButton(subject, callback_data=f"subject_{batch_name}_{subject}")])
         
         # Add surprise button
@@ -121,7 +124,10 @@ async def subject_callback(client: Client, callback_query: CallbackQuery):
         keyboard = []
         batch_info = await get_batch_info(batch_name)
         
-        for teacher in batch_info.teachers:
+        # Use default teachers if batch info is not available
+        teachers = getattr(batch_info, 'teachers', DEFAULT_TEACHERS) if batch_info else DEFAULT_TEACHERS
+        
+        for teacher in teachers:
             keyboard.append([InlineKeyboardButton(teacher, callback_data=f"teacher_{batch_name}_{subject}_{teacher}")])
         
         # Add back button

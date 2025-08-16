@@ -1,0 +1,346 @@
+# Study Bot Environment Configuration
+# Copy this file to .env and fill in your values
+
+# ============================
+# Bot Information Configuration
+# ============================
+# ⭐ SESSION: Bot session name (can be any unique name)
+SESSION=StudyBot_Session
+
+# ⭐ API_ID: Your Telegram API ID from https://my.telegram.org/apps
+API_ID=your_api_id_here
+
+# ⭐ API_HASH: Your Telegram API Hash from https://my.telegram.org/apps
+API_HASH=your_api_hash_here
+
+# ⭐ BOT_TOKEN: Main bot token from @BotFather
+BOT_TOKEN=your_main_bot_token_here
+
+# ⭐ CONTENT_BOT_TOKEN: Content bot token from @BotFather (for file delivery)
+CONTENT_BOT_TOKEN=your_content_bot_token_here
+
+# ============================
+# Bot Settings Configuration
+# ============================
+# CACHE_TIME: How long to cache data (in seconds)
+CACHE_TIME=300
+
+# USE_CAPTION_FILTER: Enable/disable caption filtering for search
+USE_CAPTION_FILTER=True
+
+# INDEX_CAPTION: Save captions in database for search
+SAVE_CAPTION=True
+
+# CUSTOM_FILE_CAPTION: Custom caption template for files
+CUSTOM_FILE_CAPTION=
+
+# BATCH_FILE_CAPTION: Custom caption for batch files
+BATCH_FILE_CAPTION=
+
+# ============================
+# Study Bot Specific Settings
+# ============================
+# PM_ON: Allow users to use bot in private messages
+PM_ON=True
+
+# PM_FILTER: Enable PM filtering
+PM_FILTER=True
+
+# AUTO_SUGGESTION: Enable auto-suggestions for users
+AUTO_SUGGESTION=True
+
+# GAMIFICATION: Enable progress tracking and achievements
+GAMIFICATION=True
+
+# MULTI_LANGUAGE: Enable multi-language support
+MULTI_LANGUAGE=False
+
+# ============================
+# Images and Media
+# ============================
+# PICS: Welcome images (space-separated URLs)
+PICS=https://graph.org/file/56b5deb73f3b132e2bb73.jpg https://graph.org/file/5303692652d91d52180c2.jpg https://graph.org/file/425b6f46efc7c6d64105f.jpg https://graph.org/file/876867e761c6c7a29855b.jpg
+
+# NOR_IMG: Default image for no results
+NOR_IMG=https://graph.org/file/e20b5fdaf217252964202.jpg
+
+# MELCOW_PHOTO: Welcome photo for new users
+MELCOW_PHOTO=https://graph.org/file/56b5deb73f3b132e2bb73.jpg
+
+# MELCOW_NEW_USERS: Enable welcome message for new users
+MELCOW_NEW_USERS=False
+
+# SPELL_IMG: Image for spell check results
+SPELL_IMG=https://graph.org/file/13702ae26fb05df52667c.jpg
+
+# SUBSCRIPTION: Premium subscription image
+SUBSCRIPTION=https://graph.org/file/242b7f1b52743938d81f1.jpg
+
+# QR_CODE: QR code image for payments
+QR_CODE=https://graph.org/file/e419f801841c2ee3db0fc.jpg
+
+# OWNER_UPI_ID: Your UPI ID for payments
+OWNER_UPI_ID=ɴᴏ ᴀᴠᴀɪʟᴀʙʟᴇ ʀɪɢʜᴛ ɴᴏᴡ
+
+# FSUB_PICS: Force subscribe images
+FSUB_PICS=https://graph.org/file/7478ff3eac37f4329c3d8.jpg https://graph.org/file/56b5deb73f3b132e2bb73.jpg
+
+# ============================
+# Admin, Channels & Users Configuration
+# ============================
+# ⭐ ADMINS: List of admin user IDs (space-separated)
+ADMINS=your_admin_user_id_here
+
+# ⭐ CHANNELS: List of channel IDs where bot will work (space-separated)
+CHANNELS=your_channel_id_here
+
+# ⭐ LOG_CHANNEL: Channel ID for bot logs
+LOG_CHANNEL=your_log_channel_id_here
+
+# BIN_CHANNEL: Channel ID for deleted files
+BIN_CHANNEL=your_bin_channel_id_here
+
+# PREMIUM_LOGS: Channel ID for premium logs
+PREMIUM_LOGS=your_premium_logs_channel_id_here
+
+# DELETE_CHANNELS: Channels to delete files from
+DELETE_CHANNELS=your_delete_channels_id_here
+
+# support_chat_id: Support chat ID
+SUPPORT_CHAT_ID=your_support_chat_id_here
+
+# reqst_channel: Request channel ID
+REQST_CHANNEL_ID=your_request_channel_id_here
+
+# SUPPORT_CHAT: Support chat link
+SUPPORT_CHAT=https://t.me/your_support_chat
+
+# INDEX_REQ_CHANNEL: Index request channel
+INDEX_REQ_CHANNEL=your_index_request_channel_id_here
+
+# FORCE_SUB 
+# auth_req_channels: Channels for force subscribe
+AUTH_REQ_CHANNELS=your_auth_req_channels_id_here
+
+# auth_channels: Auth channels
+AUTH_CHANNELS=your_auth_channels_id_here
+
+# AUTH_CHANNEL: Force subscribe channels
+AUTH_CHANNEL=
+
+# AUTH_USERS: Authorized users
+AUTH_USERS=
+
+# ============================
+# Study Content Channels
+# ============================
+# ⭐ STUDY_CONTENT_CHANNELS: Channels containing study materials
+STUDY_CONTENT_CHANNELS=your_study_content_channels_id_here
+
+# ⭐ PHYSICS_CHANNEL: Channel ID for Physics content
+PHYSICS_CHANNEL=your_physics_channel_id_here
+
+# ⭐ CHEMISTRY_CHANNEL: Channel ID for Chemistry content
+CHEMISTRY_CHANNEL=your_chemistry_channel_id_here
+
+# ⭐ BIOLOGY_CHANNEL: Channel ID for Biology content
+BIOLOGY_CHANNEL=your_biology_channel_id_here
+
+# ============================
+# Bot Information
+# ============================
+# ⭐ BOT_USERNAME: Your main bot username (without @)
+BOT_USERNAME=your_bot_username_here
+
+# ⭐ CONTENT_BOT_USERNAME: Your content bot username (without @)
+CONTENT_BOT_USERNAME=your_content_bot_username_here
+
+# ⭐ MAIN_CHANNEL: Your main channel link
+MAIN_CHANNEL=https://t.me/your_main_channel
+
+# ⭐ SUPPORT_GROUP: Your support group link
+SUPPORT_GROUP=https://t.me/your_support_group
+
+# ⭐ OWNER_LNK: Your personal Telegram link
+OWNER_LNK=https://t.me/your_username
+
+# ============================
+# MongoDB Configuration
+# ============================
+# ⭐ DATABASE_URI: MongoDB connection string
+DATABASE_URI=mongodb+srv://username:password@cluster.mongodb.net/?retryWrites=true&w=majority
+
+# DATABASE_NAME: Database name
+DATABASE_NAME=StudyBotDB
+
+# COLLECTION_NAME: Collection name for files
+COLLECTION_NAME=study_files
+
+# Multiple Database Support
+# MULTIPLE_DB: Enable multiple database support
+MULTIPLE_DB=False
+
+# DATABASE_URI2: Second database URI (if MULTIPLE_DB is True)
+DATABASE_URI2=
+
+# DB_CHANGE_LIMIT: Database size limit for switching
+DB_CHANGE_LIMIT=432
+
+# ============================
+# Web Server Configuration
+# ============================
+# PORT: Web server port
+PORT=8080
+
+# ON_HEROKU: Set to True if deploying on Heroku
+ON_HEROKU=False
+
+# ============================
+# Premium Features
+# ============================
+# PREMIUM_FEATURES: Enable premium features
+PREMIUM_FEATURES=True
+
+# ============================
+# Study Bot Features
+# ============================
+# AUTO_TAGGING: Enable automatic content tagging
+AUTO_TAGGING=True
+
+# BULK_UPLOAD: Enable bulk file upload
+BULK_UPLOAD=True
+
+# UPDATE_NOTIFICATIONS: Enable update notifications
+UPDATE_NOTIFICATIONS=True
+
+# FULL_TEXT_SEARCH: Enable full-text search
+FULL_TEXT_SEARCH=True
+
+# HYBRID_STORAGE: Enable hybrid storage system
+HYBRID_STORAGE=True
+
+# IS_VERIFY: Enable verification system
+IS_VERIFY=False
+
+# TUTORIAL: Tutorial link for verification
+TUTORIAL=https://t.me/
+
+# TUTORIAL_2: Second tutorial link
+TUTORIAL_2=https://t.me/
+
+# TUTORIAL_3: Third tutorial link
+TUTORIAL_3=https://t.me/
+
+# IMDB: Enable IMDB search feature
+IMDB=False
+
+# AUTO_DELETE: Enable auto-delete feature
+AUTO_DELETE=True
+
+# WELCOME: Enable welcome messages
+WELCOME=True
+
+# WELCOME_MESSAGE: Enable welcome message text
+WELCOME_MESSAGE=True
+
+# AUTO_FILTER: Enable auto-filtering
+AUTO_FILTER=True
+
+# AUTO_SEARCH: Enable auto-search
+AUTO_SEARCH=True
+
+# SPELL_CHECK_REPLY: Enable spell check
+SPELL_CHECK_REPLY=True
+
+# MAX_BTN: Enable max button feature
+MAX_BTN=True
+
+# MAX_B_TN: Maximum buttons per row
+MAX_B_TN=5
+
+# LONG_IMDB_DESCRIPTION: Enable long IMDB descriptions
+LONG_IMDB_DESCRIPTION=False
+
+# LINK_MODE: Enable link mode for file sharing
+LINK_MODE=False
+
+# PROTECT_CONTENT: Enable content protection
+PROTECT_CONTENT=False
+
+# INVITE_LINK: Bot invite link
+INVITE_LINK=
+
+# UPDATES_CHANNEL: Updates channel
+UPDATES_CHANNEL=https://t.me/your_updates_channel
+
+# FILE_STORE_CHANNEL: File store channel
+FILE_STORE_CHANNEL=https://t.me/your_file_store_channel
+
+# PUBLIC_FILE_STORE: Enable public file store
+PUBLIC_FILE_STORE=True
+
+# CUSTOM_QUERY_CAPTION: Custom query caption template
+CUSTOM_QUERY_CAPTION=
+
+# DELETE_TIME: Auto-delete time in seconds
+DELETE_TIME=300
+
+# AUTO_FFILTER: Enable auto-filtering
+AUTO_FFILTER=True
+
+# CHAT_LIMIT: Chat limit for file sharing
+CHAT_LIMIT=10
+
+# MAX_LIST_ELM: Maximum list elements
+MAX_LIST_ELM=
+
+# SINGLE_BUTTON: Enable single button mode
+SINGLE_BUTTON=False
+
+# WATERMARK_TEXT: Watermark text for files
+WATERMARK_TEXT=@your_username
+
+# ============================
+# Default Study Settings
+# ============================
+# DEFAULT_SUBJECTS: Default subjects for study bot
+DEFAULT_SUBJECTS=Physics,Chemistry,Biology
+
+# DEFAULT_TEACHERS: Default teachers for study bot
+DEFAULT_TEACHERS=Mr Sir,Saleem Sir
+
+# MAX_CHAPTERS: Maximum number of chapters
+MAX_CHAPTERS=50
+
+# MAX_LECTURES: Maximum number of lectures
+MAX_LECTURES=100
+
+# ============================
+# File Size Limits
+# ============================
+# MAX_FILE_SIZE: Maximum file size (2GB in bytes)
+MAX_FILE_SIZE=2097152000
+
+# CHUNK_SIZE: File chunk size (50MB)
+CHUNK_SIZE=52428800
+
+# ============================
+# Cache Settings
+# ============================
+# REDIS_URL: Redis connection URL (optional)
+REDIS_URL=
+
+# CACHE_EXPIRY: Cache expiry time in seconds
+CACHE_EXPIRY=3600
+
+# ============================
+# Security Settings
+# ============================
+# ENCRYPTION_KEY: Encryption key for sensitive data
+ENCRYPTION_KEY=
+
+# RATE_LIMIT: Rate limit per minute
+RATE_LIMIT=10
+
+# MAX_REQUESTS: Maximum requests per user per day
+MAX_REQUESTS=100

@@ -72,21 +72,25 @@ cd study-bot
 pip install -r requirements.txt
 ```
 
-3. **Configure environment**
+3. **Run setup script (Recommended)**
+```bash
+python setup.py
+```
+
+4. **Or configure manually**
 ```bash
 cp env_template.txt .env
 # Edit .env with your configuration
 ```
 
-4. **Set up database**
+5. **Test your setup**
 ```bash
-# Ensure MongoDB is running
-# Create database and collections
+python test_setup.py
 ```
 
-5. **Run the bot**
+6. **Run the bot**
 ```bash
-python bot.py
+python start.py
 ```
 
 ### 🔑 Configuration
@@ -246,6 +250,23 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 - **Database errors**: Verify MongoDB connection
 - **File upload issues**: Check file size limits
 - **Permission errors**: Verify admin status
+
+### 🔧 Troubleshooting
+
+#### Setup Issues
+1. **Missing dependencies**: Run `pip install -r requirements.txt`
+2. **Configuration errors**: Use `python setup.py` to create .env file
+3. **Import errors**: Ensure you're in the correct directory
+
+#### Runtime Issues
+1. **Bot won't start**: Check your .env configuration
+2. **Database connection failed**: Verify MongoDB URI and credentials
+3. **Plugin errors**: Check plugin files for syntax errors
+
+#### Testing
+- Run `python test_setup.py` to verify your setup
+- Check logs for detailed error messages
+- Ensure all required environment variables are set
 
 ## 🔮 Future Roadmap
 

@@ -23,10 +23,10 @@ def is_enabled(value, default):
 # Bot Information Configuration
 # ============================
 # ⭐ SESSION: Bot session name (can be any unique name)
-SESSION = environ.get('SESSION', 'StudyBot_Session')
+SESSION = environ.get('SESSION', 'AnujBot')
 
 # ⭐ API_ID: Your Telegram API ID from https://my.telegram.org/apps
-API_ID = int(environ.get('API_ID', '0')) if environ.get('API_ID') else 0
+API_ID = int(environ.get('API_ID', '0')) if environ.get('API_ID') and environ.get('API_ID').isdigit() else 0
 
 # ⭐ API_HASH: Your Telegram API Hash from https://my.telegram.org/apps
 API_HASH = environ.get('API_HASH', '')
@@ -107,44 +107,44 @@ FSUB_PICS = (environ.get('FSUB_PICS', 'https://graph.org/file/7478ff3eac37f4329c
 # Admin, Channels & Users Configuration
 # ============================
 # ⭐ ADMINS: List of admin user IDs (space-separated)
-ADMINS = [int(admin) if id_pattern.search(admin) else admin for admin in environ.get('ADMINS', '').split()]
+ADMINS = [int(admin) if id_pattern.search(admin) else admin for admin in environ.get('ADMINS', '').split()] if environ.get('ADMINS') else []
 
 # OWNER_ID: Owner IDs (automatically extracted from ADMINS)
-OWNER_ID = [int(admin) for admin in environ.get('ADMINS', '').split() if id_pattern.search(admin)]
+OWNER_ID = [int(admin) for admin in environ.get('ADMINS', '').split() if id_pattern.search(admin)] if environ.get('ADMINS') else []
 
 # ⭐ CHANNELS: List of channel IDs where bot will work (space-separated)
-CHANNELS = [int(ch) if id_pattern.search(ch) else ch for ch in environ.get('CHANNELS', '-100').split()]
+CHANNELS = [int(ch) if id_pattern.search(ch) else ch for ch in environ.get('CHANNELS', '').split()] if environ.get('CHANNELS') else []
 
 # ⭐ LOG_CHANNEL: Channel ID for bot logs
-LOG_CHANNEL = int(environ.get('LOG_CHANNEL', '-100'))
+LOG_CHANNEL = int(environ.get('LOG_CHANNEL', '0')) if environ.get('LOG_CHANNEL') and environ.get('LOG_CHANNEL').replace('-', '').isdigit() else 0
 
 # BIN_CHANNEL: Channel ID for deleted files
-BIN_CHANNEL = int(environ.get('BIN_CHANNEL', '-100'))
+BIN_CHANNEL = int(environ.get('BIN_CHANNEL', '0')) if environ.get('BIN_CHANNEL') and environ.get('BIN_CHANNEL').replace('-', '').isdigit() else 0
 
 # PREMIUM_LOGS: Channel ID for premium logs
-PREMIUM_LOGS = int(environ.get('PREMIUM_LOGS', '-100'))
+PREMIUM_LOGS = int(environ.get('PREMIUM_LOGS', '0')) if environ.get('PREMIUM_LOGS') and environ.get('PREMIUM_LOGS').replace('-', '').isdigit() else 0
 
 # DELETE_CHANNELS: Channels to delete files from
-DELETE_CHANNELS = [int(dch) if id_pattern.search(dch) else dch for dch in environ.get('DELETE_CHANNELS', '-100').split()]
+DELETE_CHANNELS = [int(dch) if id_pattern.search(dch) else dch for dch in environ.get('DELETE_CHANNELS', '').split()] if environ.get('DELETE_CHANNELS') else []
 
 # support_chat_id: Support chat ID
-support_chat_id = environ.get('SUPPORT_CHAT_ID', '-100')
+support_chat_id = environ.get('SUPPORT_CHAT_ID', '0')
 
 # reqst_channel: Request channel ID
-reqst_channel = environ.get('REQST_CHANNEL_ID', '-100')
+reqst_channel = environ.get('REQST_CHANNEL_ID', '0')
 
 # SUPPORT_CHAT: Support chat link
-SUPPORT_CHAT = environ.get('SUPPORT_CHAT', 'https://t.me/')
+SUPPORT_CHAT = environ.get('SUPPORT_CHAT', '')
 
 # INDEX_REQ_CHANNEL: Index request channel
-INDEX_REQ_CHANNEL = int(environ.get('INDEX_REQ_CHANNEL', LOG_CHANNEL))
+INDEX_REQ_CHANNEL = int(environ.get('INDEX_REQ_CHANNEL', LOG_CHANNEL)) if environ.get('INDEX_REQ_CHANNEL') and environ.get('INDEX_REQ_CHANNEL').replace('-', '').isdigit() else LOG_CHANNEL
 
 # FORCE_SUB 
 # auth_req_channels: Channels for force subscribe
-auth_req_channels = environ.get("AUTH_REQ_CHANNELS", "-100")
+auth_req_channels = environ.get("AUTH_REQ_CHANNELS", "0")
 
 # auth_channels: Auth channels
-auth_channels = environ.get("AUTH_CHANNELS", "-100")
+auth_channels = environ.get("AUTH_CHANNELS", "0")
 
 # AUTH_CHANNEL: Force subscribe channels
 AUTH_CHANNEL = environ.get("AUTH_CHANNEL", "")
@@ -156,34 +156,34 @@ AUTH_USERS = [int(user) if id_pattern.search(user) else user for user in environ
 # Study Content Channels
 # ============================
 # ⭐ STUDY_CONTENT_CHANNELS: Channels containing study materials
-STUDY_CONTENT_CHANNELS = [int(ch) if id_pattern.search(ch) else ch for ch in environ.get('STUDY_CONTENT_CHANNELS', '-100').split()]
+STUDY_CONTENT_CHANNELS = [int(ch) if id_pattern.search(ch) else ch for ch in environ.get('STUDY_CONTENT_CHANNELS', '').split()] if environ.get('STUDY_CONTENT_CHANNELS') else []
 
 # ⭐ PHYSICS_CHANNEL: Channel ID for Physics content
-PHYSICS_CHANNEL = int(environ.get('PHYSICS_CHANNEL', '-100'))
+PHYSICS_CHANNEL = int(environ.get('PHYSICS_CHANNEL', '0')) if environ.get('PHYSICS_CHANNEL') and environ.get('PHYSICS_CHANNEL').replace('-', '').isdigit() else 0
 
 # ⭐ CHEMISTRY_CHANNEL: Channel ID for Chemistry content
-CHEMISTRY_CHANNEL = int(environ.get('CHEMISTRY_CHANNEL', '-100'))
+CHEMISTRY_CHANNEL = int(environ.get('CHEMISTRY_CHANNEL', '0')) if environ.get('CHEMISTRY_CHANNEL') and environ.get('CHEMISTRY_CHANNEL').replace('-', '').isdigit() else 0
 
 # ⭐ BIOLOGY_CHANNEL: Channel ID for Biology content
-BIOLOGY_CHANNEL = int(environ.get('BIOLOGY_CHANNEL', '-100'))
+BIOLOGY_CHANNEL = int(environ.get('BIOLOGY_CHANNEL', '0')) if environ.get('BIOLOGY_CHANNEL') and environ.get('BIOLOGY_CHANNEL').replace('-', '').isdigit() else 0
 
 # ============================
 # Bot Information
 # ============================
 # ⭐ BOT_USERNAME: Your main bot username (without @)
-BOT_USERNAME = environ.get('BOT_USERNAME', 'StudyBot')
+BOT_USERNAME = environ.get('BOT_USERNAME', '')
 
 # ⭐ CONTENT_BOT_USERNAME: Your content bot username (without @)
-CONTENT_BOT_USERNAME = environ.get('CONTENT_BOT_USERNAME', 'StudyContentBot')
+CONTENT_BOT_USERNAME = environ.get('CONTENT_BOT_USERNAME', '')
 
 # ⭐ MAIN_CHANNEL: Your main channel link
-MAIN_CHANNEL = environ.get('MAIN_CHANNEL', 'https://t.me/your_channel')
+MAIN_CHANNEL = environ.get('MAIN_CHANNEL', '')
 
 # ⭐ SUPPORT_GROUP: Your support group link
-SUPPORT_GROUP = environ.get('SUPPORT_GROUP', 'https://t.me/your_support_group')
+SUPPORT_GROUP = environ.get('SUPPORT_GROUP', '')
 
 # ⭐ OWNER_LNK: Your personal Telegram link
-OWNER_LNK = environ.get('OWNER_LNK', 'https://t.me/your_username')
+OWNER_LNK = environ.get('OWNER_LNK', '')
 
 # ============================
 # MongoDB Configuration
@@ -337,13 +337,13 @@ MAX_LIST_ELM = environ.get("MAX_LIST_ELM", None)
 SINGLE_BUTTON = is_enabled(environ.get('SINGLE_BUTTON', "False"), False)
 
 # WATERMARK_TEXT: Watermark text for files
-WATERMARK_TEXT = environ.get('WATERMARK_TEXT', '')
+WATERMARK_TEXT = environ.get('WATERMARK_TEXT', '@your_username')
 
 # SUPPORT_CHAT_ID: Support chat ID
-SUPPORT_CHAT_ID = environ.get('SUPPORT_CHAT_ID', '')
+SUPPORT_CHAT_ID = environ.get('SUPPORT_CHAT_ID', '-1008222302446')
 
 # REQST_CHANNEL_ID: Request channel ID
-REQST_CHANNEL_ID = environ.get('REQST_CHANNEL_ID', '')
+REQST_CHANNEL_ID = environ.get('REQST_CHANNEL_ID', '-1002961062362')
 
 # ============================
 # Default Study Settings

@@ -87,12 +87,16 @@ async def studybot_start():
     logging.info(f"{me.first_name} with Pyrogram v{__version__} (Layer {layer}) started on {me.username}.")
     logging.info(script.LOGO)
     
-    # Send restart message to log channel
-    tz = pytz.timezone('Asia/Kolkata')
-    today = date.today()
-    now = datetime.now(tz)
-    time_str = now.strftime("%H:%M:%S %p")
-    await studybot.send_message(chat_id=LOG_CHANNEL, text=script.RESTART_TXT.format(temp.B_LINK, today, time_str))
+    # Send restart message to log channel if configured
+    if LOG_CHANNEL:
+        try:
+            tz = pytz.timezone('Asia/Kolkata')
+            today = date.today()
+            now = datetime.now(tz)
+            time_str = now.strftime("%H:%M:%S %p")
+            await studybot.send_message(chat_id=LOG_CHANNEL, text=script.RESTART_TXT.format(temp.B_LINK, today, time_str))
+        except Exception as e:
+            logging.error(f"Failed to send restart message to log channel: {e}")
     
     # Start web server
     app = web.AppRunner(await web_server())
