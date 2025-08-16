@@ -33,7 +33,7 @@ instance2 = Instance.from_db(db2)
 class Media(Document):
     """Media document for primary database"""
     file_id = fields.StrField(attribute="_id")
-    file_ref = fields.StrField(allow_none=True, default="")
+    file_ref = fields.StringField(default="default_value")
     file_name = fields.StrField(required=True)
     file_size = fields.IntField(required=True)
     file_type = fields.StrField(allow_none=True)
@@ -48,7 +48,7 @@ class Media(Document):
 class Media2(Document):
     """Media document for secondary database"""
     file_id = fields.StrField(attribute="_id")
-    file_ref = fields.StrField(allow_none=True, default="")
+    file_ref = fields.StringField(default="default_value")
     file_name = fields.StrField(required=True)
     file_size = fields.IntField(required=True)
     file_type = fields.StrField(allow_none=True)
