@@ -25,6 +25,7 @@ numpy==1.25.2
 # Security and validation
 cryptography==41.0.7
 bcrypt==4.1.2
+marshmallow==3.21.2
 
 # Monitoring and logging
 psutil==5.9.6
