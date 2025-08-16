@@ -56,11 +56,11 @@ def check_dependencies():
     missing_modules = []
     for module in required_modules:
         try:
-            __import__(module)
+            __import__(module )
         except ImportError:
             missing_modules.append(module)
 
-    # Motor ko alag se check karein
+    # Motor ko alag se check karein kyunki yeh motor.motor_asyncio ke roop mein import hota hai
     try:
         from motor import motor_asyncio
     except ImportError:
@@ -73,6 +73,7 @@ def check_dependencies():
     
     print("✅ All required dependencies are available")
     return True
+
     
     
 
