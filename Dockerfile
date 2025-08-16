@@ -17,7 +17,7 @@ COPY requirements-docker.txt ./requirements.txt
 RUN pip install --no-cache-dir --upgrade pip && \
     pip install --no-cache-dir -r requirements.txt
     
-RUN pip install umongo==2.4.0
+RUN pip install umongo==2.0.3
 
 
 # Copy application code
