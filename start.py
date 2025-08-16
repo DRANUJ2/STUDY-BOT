@@ -49,7 +49,7 @@ def check_dependencies():
         missing_modules.append("motor")
 
     if missing_modules:
-        print(f"❌ Missing required modules: {\', \'.join(missing_modules)}")
+        print(f"❌ Missing required modules: {', '.join(missing_modules)}")
         print("Please install them using: pip install -r requirements.txt")
         return False
     
@@ -74,7 +74,7 @@ def check_config():
     
     if missing_vars:
         print("⚠️  No .env file found and missing essential environment variables:")
-        print(f"   Missing: {\', \'.join(missing_vars)}")
+        print(f"   Missing: {', '.join(missing_vars)}")
         print("   Please either:")
         print("   1. Copy env_template.txt to .env and configure it, or")
         print("   2. Set the environment variables directly")
