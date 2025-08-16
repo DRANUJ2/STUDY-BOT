@@ -14,7 +14,7 @@ import logging
 import logging.config
 
 # Import study bot specific modules
-from database.study_db import init_db
+from database.study_db import init_db, client
 from config import *
 from utils import temp
 from Script import script
@@ -43,6 +43,16 @@ files = glob.glob(ppath)
 async def studybot_start():
     """Initialize and start the Study Bot"""
     print('\n\nInitializing Study Bot')
+    
+    # Check database connection
+    # YEH POORA BLOCK FUNCTION KE ANDAR HONA CHAHIYE
+    try:
+        await client.admin.command('ping')
+        logging.info("✅ Database se safaltapoorvak connect ho gaya.")
+    except Exception as e:
+        logging.error(f"❌ Database se connect nahi ho paya: {e}")
+        logging.error(" कृपया .env file mein DATABASE_URI ko check karein aur MongoDB server ko restart karein.")
+        return # Agar connection fail ho to bot ko aage na badhayein
     
     # Initialize database
     await init_db()
