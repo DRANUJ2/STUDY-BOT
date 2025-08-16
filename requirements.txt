@@ -9,6 +9,8 @@ umongo[motor]>=3.0.0,<3.2.0
 motor>=2.0.0,<3.0.0
 pymongo[srv]>=3.11.0,<4.0.0
 
+mongoengine==0.23.1
+
 
 # Database and caching
 redis==5.0.1
