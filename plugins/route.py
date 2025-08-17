@@ -1,11 +1,14 @@
 import logging
 import asyncio
 from pyrogram import Client, filters, enums
-from pyrogram.errors import FloodWait, UserNotParticipant
 from pyrogram.types import InlineKeyboardMarkup, InlineKeyboardButton, Message
+from pyrogram.errors import FloodWait
+from database.study_db import db as study_db
 from config import *
-from database.study_db import db
+from Script import script
 from utils import temp, get_readable_time
+from datetime import datetime, timedelta
+import pytz
 
 logger = logging.getLogger(__name__)
 
@@ -15,8 +18,8 @@ async def route_command(client, message):
     user_id = message.from_user.id
     
     # Check if user exists in database
-    if not await db.is_user_exist(user_id):
-        await db.add_user(user_id, message.from_user.first_name)
+    if not await study_db.is_user_exist(user_id):
+        await study_db.add_user(user_id, message.from_user.first_name)
     
     # Show route options
     buttons = [
@@ -105,7 +108,7 @@ async def show_progress(client, callback_query):
     user_id = callback_query.from_user.id
     
     # Get user progress from database
-    user = await db.get_user(user_id)
+    user = await study_db.get_user(user_id)
     if user:
         total_sessions = len(user.get('study_sessions', []))
         total_time = sum(session.get('duration', 0) for session in user.get('study_sessions', []))
@@ -132,7 +135,7 @@ async def show_settings(client, callback_query):
     user_id = callback_query.from_user.id
     
     # Get user settings
-    user = await db.get_user(user_id)
+    user = await study_db.get_user(user_id)
     if user:
         pm_enabled = user.get('pm_enabled', True)
         notifications = user.get('notifications', True)
@@ -172,11 +175,11 @@ async def toggle_settings(client, callback_query):
 
 async def toggle_pm_setting(client, callback_query, user_id):
     """Toggle PM setting"""
-    user = await db.get_user(user_id)
+    user = await study_db.get_user(user_id)
     current_pm = user.get('pm_enabled', True) if user else True
     
     new_pm = not current_pm
-    await db.update_user(user_id, {'pm_enabled': new_pm})
+    await study_db.update_user(user_id, {'pm_enabled': new_pm})
     
     status = "✅ Enabled" if new_pm else "❌ Disabled"
     await callback_query.answer(f"PM Mode: {status}")
@@ -186,11 +189,11 @@ async def toggle_pm_setting(client, callback_query, user_id):
 
 async def toggle_notification_setting(client, callback_query, user_id):
     """Toggle notification setting"""
-    user = await db.get_user(user_id)
+    user = await study_db.get_user(user_id)
     current_notif = user.get('notifications', True) if user else True
     
     new_notif = not current_notif
-    await db.update_user(user_id, {'notifications': new_notif})
+    await study_db.update_user(user_id, {'notifications': new_notif})
     
     status = "✅ Enabled" if new_notif else "❌ Disabled"
     await callback_query.answer(f"Notifications: {status}")
@@ -200,11 +203,11 @@ async def toggle_notification_setting(client, callback_query, user_id):
 
 async def toggle_auto_save_setting(client, callback_query, user_id):
     """Toggle auto save setting"""
-    user = await db.get_user(user_id)
+    user = await study_db.get_user(user_id)
     current_auto = user.get('auto_save', False) if user else False
     
     new_auto = not current_auto
-    await db.update_user(user_id, {'auto_save': new_auto})
+    await study_db.update_user(user_id, {'auto_save': new_auto})
     
     status = "✅ Enabled" if new_auto else "❌ Disabled"
     await callback_query.answer(f"Auto Save: {status}")

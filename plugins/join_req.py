@@ -1,11 +1,13 @@
 import logging
 import asyncio
 from pyrogram import Client, filters, enums
-from pyrogram.errors import FloodWait, UserNotParticipant, ChatAdminRequired
 from pyrogram.types import InlineKeyboardMarkup, InlineKeyboardButton, Message, ChatJoinRequest
+from pyrogram.errors import FloodWait, UserNotParticipant, ChatAdminRequired
 from config import *
-from database.study_db import db
+from database.study_db import db as study_db
 from utils import temp, get_readable_time
+from datetime import datetime, timedelta
+import pytz
 
 logger = logging.getLogger(__name__)
 
@@ -20,7 +22,7 @@ async def handle_join_request(client, chat_join_request):
         logger.info(f"Join request from {user.id} ({user.first_name}) to {chat.id} ({chat.title})")
         
         # Store join request in database
-        await db.add_join_request(
+        await study_db.add_join_request(
             user_id=user.id,
             chat_id=chat.id,
             user_name=user.first_name,
@@ -80,7 +82,7 @@ async def approve_join_request(client, callback_query):
         await client.approve_chat_join_request(chat_id, user_id)
         
         # Update database
-        await db.update_join_request(user_id, chat_id, {"status": "approved", "approved_by": callback_query.from_user.id})
+        await study_db.update_join_request(user_id, chat_id, {"status": "approved", "approved_by": callback_query.from_user.id})
         
         # Send success message
         await callback_query.answer("✅ Join request approved!")
@@ -128,7 +130,7 @@ async def decline_join_request(client, callback_query):
         await client.decline_chat_join_request(chat_id, user_id)
         
         # Update database
-        await db.update_join_request(user_id, chat_id, {"status": "declined", "declined_by": callback_query.from_user.id})
+        await study_db.update_join_request(user_id, chat_id, {"status": "declined", "declined_by": callback_query.from_user.id})
         
         # Send success message
         await callback_query.answer("❌ Join request declined!")
@@ -172,7 +174,7 @@ async def show_user_info(client, callback_query):
         user_id = int(callback_query.data.split("_")[2])
         
         # Get user from database
-        user = await db.get_user(user_id)
+        user = await study_db.get_user(user_id)
         
         if user:
             user_info_text = f"👤 **User Information**\n\n"
@@ -271,7 +273,7 @@ async def ban_user_from_join_request(client, callback_query):
         user_id = int(callback_query.data.split("_")[2])
         
         # Ban the user
-        await db.update_user(user_id, {
+        await study_db.update_user(user_id, {
             'banned': True,
             'ban_reason': 'Join request abuse',
             'banned_by': callback_query.from_user.id,
@@ -308,7 +310,7 @@ async def show_pending_join_requests(client, message):
     """Show pending join requests"""
     try:
         # Get pending join requests from database
-        pending_requests = await db.get_pending_join_requests()
+        pending_requests = await study_db.get_pending_join_requests()
         
         if not pending_requests:
             await message.reply_text("✅ **No pending join requests found.**")
@@ -354,7 +356,7 @@ async def view_all_join_requests_callback(client, callback_query):
     """View all join requests"""
     try:
         # Get all join requests from database
-        all_requests = await db.get_all_join_requests()
+        all_requests = await study_db.get_all_join_requests()
         
         if not all_requests:
             await callback_query.answer("✅ No join requests found!", show_alert=True)

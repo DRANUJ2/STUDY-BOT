@@ -6,7 +6,7 @@ from pyrogram import Client, filters, enums
 from pyrogram.errors import FloodWait, UserNotParticipant, ChatAdminRequired
 from pyrogram.types import InlineKeyboardMarkup, InlineKeyboardButton, Message
 from config import *
-from database.study_db import db
+from database.study_db import db as study_db
 from utils import temp, get_readable_time
 
 logger = logging.getLogger(__name__)
@@ -37,7 +37,7 @@ async def get_info_command(client, message):
     
     try:
         # Get user from database
-        user = await db.get_user(user_id)
+        user = await study_db.get_user(user_id)
         
         if user:
             info_text = f"👤 **User Information**\n\n"
@@ -229,7 +229,7 @@ async def stats_command(client, message):
     
     try:
         # Get user from database
-        user = await db.get_user(user_id)
+        user = await study_db.get_user(user_id)
         
         if user:
             # Calculate statistics

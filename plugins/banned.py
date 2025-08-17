@@ -1,11 +1,13 @@
 import logging
 import asyncio
 from pyrogram import Client, filters, enums
-from pyrogram.errors import FloodWait, UserNotParticipant, ChatAdminRequired
 from pyrogram.types import InlineKeyboardMarkup, InlineKeyboardButton, Message
+from pyrogram.errors import FloodWait, UserNotParticipant, ChatAdminRequired
 from config import *
-from database.study_db import db
+from database.study_db import db as study_db
 from utils import temp, get_readable_time
+from datetime import datetime, timedelta
+import pytz
 
 logger = logging.getLogger(__name__)
 
@@ -37,7 +39,7 @@ async def ban_user(client, message, user_id, reason):
     """Ban a user"""
     try:
         # Check if user exists
-        user = await db.get_user(user_id)
+        user = await study_db.get_user(user_id)
         if not user:
             await message.reply_text(f"❌ User {user_id} not found in database.")
             return
@@ -48,7 +50,7 @@ async def ban_user(client, message, user_id, reason):
             return
         
         # Ban the user
-        await db.update_user(user_id, {
+        await study_db.update_user(user_id, {
             'banned': True,
             'ban_reason': reason,
             'banned_by': message.from_user.id,
@@ -109,7 +111,7 @@ async def unban_user(client, message, user_id):
     """Unban a user"""
     try:
         # Check if user exists
-        user = await db.get_user(user_id)
+        user = await study_db.get_user(user_id)
         if not user:
             await message.reply_text(f"❌ User {user_id} not found in database.")
             return
@@ -120,7 +122,7 @@ async def unban_user(client, message, user_id):
             return
         
         # Unban the user
-        await db.update_user(user_id, {
+        await study_db.update_user(user_id, {
             'banned': False,
             'ban_reason': None,
             'banned_by': None,
@@ -166,7 +168,7 @@ async def show_ban_list(client, message):
     """Show list of banned users"""
     try:
         # Get banned users from database
-        banned_users = await db.get_banned_users()
+        banned_users = await study_db.get_banned_users()
         
         if not banned_users:
             await message.reply_text("✅ **No banned users found.**")
@@ -227,7 +229,7 @@ async def show_ban_info(client, message, user_id):
     """Show ban information for a specific user"""
     try:
         # Get user from database
-        user = await db.get_user(user_id)
+        user = await study_db.get_user(user_id)
         if not user:
             await message.reply_text(f"❌ User {user_id} not found in database.")
             return
@@ -315,7 +317,7 @@ async def handle_ban_reason_edit(client, message):
     
     try:
         # Update ban reason
-        await db.update_user(user_id, {'ban_reason': new_reason})
+        await study_db.update_user(user_id, {'ban_reason': new_reason})
         
         await message.reply_text(
             f"✅ **Ban Reason Updated!**\n\n"
@@ -350,7 +352,7 @@ async def refresh_banlist_callback(client, callback_query):
 async def export_banlist_callback(client, callback_query):
     """Export ban list"""
     try:
-        banned_users = await db.get_banned_users()
+        banned_users = await study_db.get_banned_users()
         
         if not banned_users:
             await callback_query.answer("✅ No banned users to export!", show_alert=True)
@@ -393,7 +395,7 @@ async def check_banned_user(client, message):
     user_id = message.from_user.id
     
     try:
-        user = await db.get_user(user_id)
+        user = await study_db.get_user(user_id)
         if user and user.get('banned', False):
             ban_reason = user.get('ban_reason', 'No reason provided')
             await message.reply_text(

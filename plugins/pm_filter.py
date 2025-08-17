@@ -1,9 +1,9 @@
 import logging
 import asyncio
 from datetime import datetime
-from pyrogram import Client, filters
+from pyrogram import Client, filters, enums
 from pyrogram.types import Message, InlineKeyboardMarkup, InlineKeyboardButton
-from database.study_db import db
+from database.study_db import db as study_db
 from config import *
 from utils import temp, get_readable_time
 
@@ -61,21 +61,21 @@ async def process_batch_command(client: Client, message: Message, batch_name: st
         first_name = message.from_user.first_name
         
         # Get or create user
-        user = await db.get_user(user_id)
+        user = await study_db.get_user(user_id)
         if not user:
-            await db.add_user(user_id, first_name)
+            await study_db.add_user(user_id, first_name)
         
         # Update user's current batch and last active
-        await db.update_user(user_id, {
+        await study_db.update_user(user_id, {
             'current_batch': batch_name,
             'last_active': int(asyncio.get_event_loop().time())
         })
         
         # Get batch information
-        batch = await db.get_batch(batch_name)
+        batch = await study_db.get_batch(batch_name)
         if not batch:
             # Create default batch if it doesn't exist
-            await db.add_batch(batch_name, {
+            await study_db.add_batch(batch_name, {
                 'subjects': ["Physics", "Chemistry", "Biology"],
                 'teachers': ["Mr Sir", "Saleem Sir"],
                 'is_active': True,
@@ -154,7 +154,7 @@ async def handle_subject_selection(client: Client, callback_query):
         user_id = callback_query.from_user.id
         
         # Update user's current subject
-        await db.update_user(user_id, {'current_subject': subject})
+        await study_db.update_user(user_id, {'current_subject': subject})
         
         # Create teacher selection buttons
         caption = f"""📚 **{batch_name.upper()}** - {subject}
@@ -188,7 +188,7 @@ async def handle_teacher_selection(client: Client, callback_query):
         user_id = callback_query.from_user.id
         
         # Update user's current teacher
-        await db.update_user(user_id, {'current_teacher': teacher})
+        await study_db.update_user(user_id, {'current_teacher': teacher})
         
         # Create chapter selection buttons
         caption = f"""📚 **{batch_name.upper()}** - {subject}
@@ -311,7 +311,7 @@ async def handle_chapter_selection(client: Client, callback_query):
         user_id = callback_query.from_user.id
         
         # Update user's current chapter
-        await db.update_user(user_id, {'current_chapter': chapter})
+        await study_db.update_user(user_id, {'current_chapter': chapter})
         
         # Create content type selection buttons
         caption = f"""📚 **{batch_name.upper()}** - {subject}

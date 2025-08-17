@@ -1,13 +1,14 @@
-import pytz
-import datetime
+import logging
 import asyncio
-from Script import script 
+from pyrogram import Client, filters, enums
+from pyrogram.types import Message, InlineKeyboardMarkup, InlineKeyboardButton
+from pyrogram.errors import FloodWait
+from database.study_db import db as study_db
 from config import *
-from utils import get_readable_time, temp
-from database.study_db import db 
-from pyrogram import Client, filters 
-from pyrogram.errors.exceptions.bad_request_400 import MessageTooLong
-from pyrogram.types import *
+from Script import script
+from utils import temp, get_readable_time
+from datetime import datetime, timedelta
+import pytz
 
 @Client.on_message(filters.command("remove_premium") & filters.user(ADMINS))
 async def remove_premium(client, message):
@@ -17,7 +18,7 @@ async def remove_premium(client, message):
             user_id = int(message.command[1])
             user = await client.get_users(user_id)
             
-            if await db.remove_premium_access(user_id):
+            if await study_db.remove_premium_access(user_id):
                 await message.reply_text("✅ **Premium access removed successfully!**")
                 
                 # Notify the user
@@ -48,16 +49,16 @@ async def myplan(client, message):
         user_id = message.from_user.id
         
         # Get user data from database
-        user_data = await db.get_user(user_id)
+        user_data = await study_db.get_user(user_id)
         
         if user_data and user_data.get("premium_expiry"):
             expiry = user_data.get("premium_expiry")
-            current_time = datetime.datetime.now(pytz.timezone("Asia/Kolkata"))
+            current_time = datetime.now(pytz.timezone("Asia/Kolkata"))
             
             # Calculate time left
             if isinstance(expiry, str):
                 # Parse string date
-                expiry_dt = datetime.datetime.fromisoformat(expiry.replace('Z', '+00:00'))
+                expiry_dt = datetime.fromisoformat(expiry.replace('Z', '+00:00'))
                 expiry_dt = expiry_dt.astimezone(pytz.timezone("Asia/Kolkata"))
             else:
                 expiry_dt = expiry.astimezone(pytz.timezone("Asia/Kolkata"))
@@ -171,15 +172,15 @@ async def get_premium(client, message):
         try:
             user_id = int(message.command[1])
             user = await client.get_users(user_id)
-            user_data = await db.get_user(user_id)
+            user_data = await study_db.get_user(user_id)
             
             if user_data and user_data.get("premium_expiry"):
                 expiry = user_data.get("premium_expiry")
-                current_time = datetime.datetime.now(pytz.timezone("Asia/Kolkata"))
+                current_time = datetime.now(pytz.timezone("Asia/Kolkata"))
                 
                 # Parse expiry date
                 if isinstance(expiry, str):
-                    expiry_dt = datetime.datetime.fromisoformat(expiry.replace('Z', '+00:00'))
+                    expiry_dt = datetime.fromisoformat(expiry.replace('Z', '+00:00'))
                     expiry_dt = expiry_dt.astimezone(pytz.timezone("Asia/Kolkata"))
                 else:
                     expiry_dt = expiry.astimezone(pytz.timezone("Asia/Kolkata"))
@@ -243,11 +244,11 @@ async def add_premium(client, message):
         user = await client.get_users(user_id)
         
         # Calculate expiry date
-        current_time = datetime.datetime.now(pytz.timezone("Asia/Kolkata"))
-        expiry_time = current_time + datetime.timedelta(days=days)
+        current_time = datetime.now(pytz.timezone("Asia/Kolkata"))
+        expiry_time = current_time + timedelta(days=days)
         
         # Update user in database
-        await db.update_user(user_id, {
+        await study_db.update_user(user_id, {
             'premium_expiry': expiry_time.isoformat(),
             'premium_plan': 'standard',
             'premium_added_by': message.from_user.id,
@@ -300,7 +301,7 @@ async def premium_users(client, message):
     
     try:
         # Get premium users from database
-        premium_users = await db.get_premium_users()
+        premium_users = await study_db.get_premium_users()
         
         if not premium_users:
             await message.reply_text("✅ **No premium users found.**")
@@ -317,8 +318,8 @@ async def premium_users(client, message):
             # Calculate time left
             try:
                 if isinstance(expiry, str):
-                    expiry_dt = datetime.datetime.fromisoformat(expiry.replace('Z', '+00:00'))
-                    current_time = datetime.datetime.now(pytz.timezone("Asia/Kolkata"))
+                    expiry_dt = datetime.fromisoformat(expiry.replace('Z', '+00:00'))
+                    current_time = datetime.now(pytz.timezone("Asia/Kolkata"))
                     time_left = expiry_dt - current_time
                     
                     if time_left.total_seconds() > 0:
@@ -383,14 +384,14 @@ async def premium_stats_callback(client, callback_query):
     user_id = callback_query.from_user.id
     
     try:
-        user_data = await db.get_user(user_id)
+        user_data = await study_db.get_user(user_id)
         
         if user_data and user_data.get("premium_expiry"):
             expiry = user_data.get("premium_expiry")
             
             if isinstance(expiry, str):
-                expiry_dt = datetime.datetime.fromisoformat(expiry.replace('Z', '+00:00'))
-                current_time = datetime.datetime.now(pytz.timezone("Asia/Kolkata"))
+                expiry_dt = datetime.fromisoformat(expiry.replace('Z', '+00:00'))
+                current_time = datetime.now(pytz.timezone("Asia/Kolkata"))
                 time_left = expiry_dt - current_time
                 
                 if time_left.total_seconds() > 0:

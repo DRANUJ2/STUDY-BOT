@@ -17,6 +17,11 @@ class Database:
             raise ImportError("Motor is not available")
         self.client = AsyncIOMotorClient(uri)
         self.db = self.client[database_name]
+        
+        # Remove the command method to prevent conflicts with filters.command
+        if hasattr(self.db, 'command'):
+            delattr(self.db, 'command')
+            
         # Collections
         self.col = self.db.top_messages
         self.stats = self.db.stats

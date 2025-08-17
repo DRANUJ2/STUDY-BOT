@@ -52,11 +52,19 @@ try:
         db = client[DATABASE_NAME]
         instance = Instance.from_db(db)
         
+        # Remove the command method to prevent conflicts with filters.command
+        if hasattr(db, 'command'):
+            delattr(db, 'command')
+        
         # Secondary database if enabled
         if MULTIPLE_DB and DATABASE_URI2:
             client2 = AsyncIOMotorClient(DATABASE_URI2)
             db2 = client2[DATABASE_NAME]
             instance2 = Instance.from_db(db2)
+            
+            # Remove the command method to prevent conflicts with filters.command
+            if hasattr(db2, 'command'):
+                delattr(db2, 'command')
 except Exception as e:
     print(f"Warning: Could not initialize database connections in study_db.py: {e}")
     client = None

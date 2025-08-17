@@ -2,7 +2,7 @@ from pyrogram import Client, filters, enums
 from pyrogram.types import InlineKeyboardButton, InlineKeyboardMarkup
 from pyrogram.errors.exceptions.bad_request_400 import MessageTooLong, PeerIdInvalid
 from info import ADMINS, MULTIPLE_DB, LOG_CHANNEL, OWNER_LNK, MELCOW_PHOTO
-from database.users_chats_db import db, db2
+from database.users_chats_db import db as users_db, db2 as users_db2
 from database.ia_filterdb import Media, Media2, db as ia_db, db2 as ia_db2
 from utils import get_size, temp, get_settings, get_readable_time
 from Script import script
@@ -20,11 +20,11 @@ async def save_group(bot, message):
     """Handle new chat members and save group to database"""
     study_bot_check = [u.id for u in message.new_chat_members]
     if temp.ME in study_bot_check:
-        if not await db.get_chat(message.chat.id):
+        if not await users_db.get_chat(message.chat.id):
             total = await bot.get_chat_members_count(message.chat.id)
             study_bot_user = message.from_user.mention if message.from_user else "Anonymous" 
             await bot.send_message(LOG_CHANNEL, script.LOG_TEXT_G.format(message.chat.title, message.chat.id, total, study_bot_user))       
-            await db.add_chat(message.chat.id, message.chat.title)
+            await users_db.add_chat(message.chat.id, message.chat.title)
         
         if message.chat.id in temp.BANNED_CHATS:
             buttons = [[InlineKeyboardButton('📌 Contact Support 📌', url=OWNER_LNK)]]
@@ -49,7 +49,7 @@ async def save_group(bot, message):
             reply_markup=reply_markup
         )
         try:
-            await db.connect_group(message.chat.id, message.from_user.id)
+            await users_db.connect_group(message.chat.id, message.from_user.id)
         except Exception as e:
             logging.error(f"DB error connecting group: {e}")
     else:
@@ -134,7 +134,7 @@ async def disable_chat(bot, message):
     else:
         chat = k.id
     try:
-        await db.disable_chat(chat_, reason)
+        await users_db.disable_chat(chat_, reason)
         temp.BANNED_CHATS.add(chat_)
         await message.reply(f"Successfully disabled the chat `{chat_}`")
     except Exception as e:
@@ -157,7 +157,7 @@ async def enable_chat(bot, message):
     else:
         chat = k.id
     try:
-        await db.enable_chat(chat_)
+        await users_db.enable_chat(chat_)
         temp.BANNED_CHATS.discard(chat_)
         await message.reply(f"Successfully enabled the chat `{chat_}`")
     except Exception as e:
@@ -171,8 +171,8 @@ async def stats(bot, message):
     
     try:
         # Get database statistics
-        total_users = await db.total_users_count()
-        total_chats = await db.total_chat_count()
+        total_users = await users_db.total_users_count()
+        total_chats = await users_db.total_chat_count()
         
         # Get file statistics
         file_stats = await get_file_stats()
@@ -214,7 +214,7 @@ async def broadcast_handler(bot, message):
         broadcast_message = " ".join(message.command[1:])
     
     try:
-        users = await db.get_all_users()
+        users = await users_db.get_all_users()
         success_count = 0
         failed_count = 0
         
@@ -257,12 +257,12 @@ async def ban_user_handler(bot, message):
         reason = " ".join(message.command[2:]) if len(message.command) > 2 else "No reason provided"
         
         # Check if user exists
-        user = await db.get_user(user_id)
+        user = await users_db.get_user(user_id)
         if not user:
             return await message.reply("❌ User not found in database!")
         
         # Ban the user
-        await db.ban_user(user_id, reason)
+        await users_db.ban_user(user_id, reason)
         
         await message.reply_text(
             f"✅ **User Banned Successfully!**\n\n"
@@ -302,17 +302,17 @@ async def unban_user_handler(bot, message):
         user_id = int(message.command[1])
         
         # Check if user exists
-        user = await db.get_user(user_id)
+        user = await users_db.get_user(user_id)
         if not user:
             return await message.reply("❌ User not found in database!")
         
         # Check if user is banned
-        ban_status = await db.get_ban_status(user_id)
+        ban_status = await users_db.get_ban_status(user_id)
         if not ban_status.get('is_banned'):
             return await message.reply("❌ User is not banned!")
         
         # Unban the user
-        await db.remove_ban(user_id)
+        await users_db.remove_ban(user_id)
         
         await message.reply_text(
             f"✅ **User Unbanned Successfully!**\n\n"
@@ -344,7 +344,7 @@ async def ban_list_handler(bot, message):
         return await message.reply("❌ This command is only for admins!")
     
     try:
-        banned_users = await db.get_banned_users()
+        banned_users = await users_db.get_banned_users()
         
         if not banned_users:
             await message.reply_text("✅ **No banned users found.**")
@@ -447,25 +447,25 @@ async def setting_callback(bot, callback_query):
         # Toggle the setting
         if setting_type == "auto_filter":
             new_value = not settings.get('auto_filter', True)
-            await db.update_chat_settings(chat_id, {'auto_filter': new_value})
+            await users_db.update_chat_settings(chat_id, {'auto_filter': new_value})
             status = "✅ Enabled" if new_value else "❌ Disabled"
             await callback_query.answer(f"Auto Filter: {status}")
             
         elif setting_type == "welcome":
             new_value = not settings.get('welcome', True)
-            await db.update_chat_settings(chat_id, {'welcome': new_value})
+            await users_db.update_chat_settings(chat_id, {'welcome': new_value})
             status = "✅ Enabled" if new_value else "❌ Disabled"
             await callback_query.answer(f"Welcome: {status}")
             
         elif setting_type == "auto_delete":
             new_value = not settings.get('auto_delete', False)
-            await db.update_chat_settings(chat_id, {'auto_delete': new_value})
+            await users_db.update_chat_settings(chat_id, {'auto_delete': new_value})
             status = "✅ Enabled" if new_value else "❌ Disabled"
             await callback_query.answer(f"Auto Delete: {status}")
             
         elif setting_type == "file_secure":
             new_value = not settings.get('file_secure', True)
-            await db.update_chat_settings(chat_id, {'file_secure': new_value})
+            await users_db.update_chat_settings(chat_id, {'file_secure': new_value})
             status = "✅ Enabled" if new_value else "❌ Disabled"
             await callback_query.answer(f"File Secure: {status}")
         

@@ -1,11 +1,14 @@
 import logging
 import asyncio
 from pyrogram import Client, filters, enums
-from pyrogram.errors import FloodWait, UserNotParticipant, ChatAdminRequired
 from pyrogram.types import InlineKeyboardMarkup, InlineKeyboardButton, Message
+from pyrogram.errors import FloodWait
+from database.study_db import db as study_db
 from config import *
-from database.study_db import db
+from Script import script
 from utils import temp, get_readable_time
+from datetime import datetime, timedelta
+import pytz
 
 logger = logging.getLogger(__name__)
 
@@ -69,9 +72,9 @@ async def show_channel_stats(client, callback_query):
     """Show channel statistics"""
     try:
         # Get statistics from database
-        total_users = await db.total_users_count()
-        total_groups = await db.total_chat_count()
-        total_files = await db.total_files_count()
+        total_users = await study_db.total_users_count()
+        total_groups = await study_db.total_chat_count()
+        total_files = await study_db.total_files_count()
         
         stats_text = f"📊 **Channel Statistics**\n\n"
         stats_text += f"👥 Total Users: {total_users}\n"
@@ -205,7 +208,7 @@ async def start_broadcast_process(client, message, target, message_text):
         
         if target == "all" or target == "pm":
             # Broadcast to PM users
-            users = await db.get_all_users()
+            users = await study_db.get_all_users()
             for user in users:
                 try:
                     await client.send_message(user['user_id'], message_text)
@@ -217,7 +220,7 @@ async def start_broadcast_process(client, message, target, message_text):
         
         if target == "all" or target == "groups":
             # Broadcast to groups
-            groups = await db.get_all_chats()
+            groups = await study_db.get_all_chats()
             for group in groups:
                 try:
                     await client.send_message(group['chat_id'], message_text)
