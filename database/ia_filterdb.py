@@ -47,12 +47,24 @@ instance2 = None
 try:
     if AsyncIOMotorClient and DATABASE_URI:
         client = AsyncIOMotorClient(DATABASE_URI)
-        db = client[DATABASE_NAME]
-        instance = Instance.from_db(db)
+        raw_db = client[DATABASE_NAME]
+        instance = Instance.from_db(raw_db)
         
-        # Remove the command method to prevent conflicts with filters.command
-        if hasattr(db, 'command'):
-            delattr(db, 'command')
+        # Create a custom wrapper that doesn't expose command method
+        class DatabaseWrapper:
+            def __init__(self, database):
+                self._db = database
+                # Copy all attributes except command
+                for attr in dir(database):
+                    if not attr.startswith('_') and attr != 'command':
+                        setattr(self, attr, getattr(database, attr))
+            
+            def __getattr__(self, name):
+                if name == 'command':
+                    raise AttributeError("'DatabaseWrapper' object has no attribute 'command'")
+                return getattr(self._db, name)
+        
+        db = DatabaseWrapper(raw_db)
 except Exception as e:
     print(f"Warning: Could not initialize primary database connection in ia_filterdb.py: {e}")
     client = None
@@ -63,12 +75,24 @@ except Exception as e:
 try:
     if AsyncIOMotorClient and DATABASE_URI2:
         client2 = AsyncIOMotorClient(DATABASE_URI2)
-        db2 = client2[DATABASE_NAME]
-        instance2 = Instance.from_db(db2)
+        raw_db2 = client2[DATABASE_NAME]
+        instance2 = Instance.from_db(raw_db2)
         
-        # Remove the command method to prevent conflicts with filters.command
-        if hasattr(db2, 'command'):
-            delattr(db2, 'command')
+        # Create a custom wrapper that doesn't expose command method
+        class DatabaseWrapper2:
+            def __init__(self, database):
+                self._db = database
+                # Copy all attributes except command
+                for attr in dir(database):
+                    if not attr.startswith('_') and attr != 'command':
+                        setattr(self, attr, getattr(database, attr))
+            
+            def __getattr__(self, name):
+                if name == 'command':
+                    raise AttributeError("'DatabaseWrapper2' object has no attribute 'command'")
+                return getattr(self._db, name)
+        
+        db2 = DatabaseWrapper2(raw_db2)
 except Exception as e:
     print(f"Warning: Could not initialize secondary database connection in ia_filterdb.py: {e}")
     client2 = None

@@ -16,11 +16,23 @@ class Database:
         if AsyncIOMotorClient is None:
             raise ImportError("Motor is not available")
         self.client = AsyncIOMotorClient(uri)
-        self.db = self.client[database_name]
+        raw_db = self.client[database_name]
         
-        # Remove the command method to prevent conflicts with filters.command
-        if hasattr(self.db, 'command'):
-            delattr(self.db, 'command')
+        # Create a custom wrapper that doesn't expose command method
+        class DatabaseWrapper:
+            def __init__(self, database):
+                self._db = database
+                # Copy all attributes except command
+                for attr in dir(database):
+                    if not attr.startswith('_') and attr != 'command':
+                        setattr(self, attr, getattr(database, attr))
+            
+            def __getattr__(self, name):
+                if name == 'command':
+                    raise AttributeError("'DatabaseWrapper' object has no attribute 'command'")
+                return getattr(self._db, name)
+        
+        self.db = DatabaseWrapper(raw_db)
             
         # Collections
         self.col = self.db.config
