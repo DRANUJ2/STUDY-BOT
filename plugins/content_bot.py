@@ -339,15 +339,13 @@ async def handle_all_messages(client: Client, message: Message):
     except Exception as e:
         logger.error(f"Error handling unexpected message: {e}")
 
-# Log when content bot starts
-@content_bot.on_start()
+# Log when content bot starts - using regular function instead of decorator
 async def content_bot_start(client: Client):
     """Log when content bot starts"""
     logger.info("Content Bot started successfully")
     logger.info("Content Bot is ready to receive and deliver study materials")
 
-# Log when content bot stops
-@content_bot.on_stop()
+# Log when content bot stops - using regular function instead of decorator
 async def content_bot_stop(client: Client):
     """Log when content bot stops"""
     logger.info("Content Bot stopped")
