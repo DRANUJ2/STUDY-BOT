@@ -3,13 +3,22 @@ from datetime import datetime, timedelta, timezone
 from typing import Dict, List, Optional
 from pymongo.errors import DuplicateKeyError
 from umongo import Instance, Document, fields
-from motor.motor_asyncio import AsyncIOMotorClient
+
+# Try to import motor with error handling
+try:
+    from motor.motor_asyncio import AsyncIOMotorClient
+except ImportError as e:
+    print(f"Warning: Could not import motor in users_chats_db.py: {e}")
+    AsyncIOMotorClient = None
+
 from config import *
 
 logger = logging.getLogger(__name__)
 
 class Database:    
     def __init__(self, uri, database_name):
+        if AsyncIOMotorClient is None:
+            raise ImportError("Motor is not available")
         self._client = AsyncIOMotorClient(uri)
         self.db = self._client[database_name]
         # Collections

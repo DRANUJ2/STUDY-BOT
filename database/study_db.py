@@ -18,7 +18,8 @@ except ImportError:
 
 try:
     from motor.motor_asyncio import AsyncIOMotorClient
-except ImportError:
+except ImportError as e:
+    print(f"Warning: Could not import motor: {e}")
     AsyncIOMotorClient = None
 
 try:
@@ -36,22 +37,28 @@ except ImportError:
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
 
+# Initialize variables to None first
+client = None
+db = None
+instance = None
+client2 = None
+db2 = None
+instance2 = None
+
 # Database connections - only initialize if dependencies are available
-if AsyncIOMotorClient and Instance and DATABASE_URI:
-    client = AsyncIOMotorClient(DATABASE_URI)
-    db = client[DATABASE_NAME]
-    instance = Instance.from_db(db)
-    
-    # Secondary database if enabled
-    if MULTIPLE_DB and DATABASE_URI2:
-        client2 = AsyncIOMotorClient(DATABASE_URI2)
-        db2 = client2[DATABASE_NAME]
-        instance2 = Instance.from_db(db2)
-    else:
-        client2 = None
-        db2 = None
-        instance2 = None
-else:
+try:
+    if AsyncIOMotorClient and Instance and DATABASE_URI:
+        client = AsyncIOMotorClient(DATABASE_URI)
+        db = client[DATABASE_NAME]
+        instance = Instance.from_db(db)
+        
+        # Secondary database if enabled
+        if MULTIPLE_DB and DATABASE_URI2:
+            client2 = AsyncIOMotorClient(DATABASE_URI2)
+            db2 = client2[DATABASE_NAME]
+            instance2 = Instance.from_db(db2)
+except Exception as e:
+    print(f"Warning: Could not initialize database connections in study_db.py: {e}")
     client = None
     db = None
     instance = None
@@ -101,16 +108,14 @@ if instance:
 
     @instance.register
     class Batches(Document):
-        """Collection for batch information"""
+        """Batches collection"""
         batch_id = fields.StringField(attribute="_id")
         batch_name = fields.StringField(required=True, unique=True)
-        batch_image = fields.StringField(allow_none=True)
-        batch_caption = fields.StringField(allow_none=True)
-        subjects = fields.ListField(fields.StringField(), default_factory=lambda: DEFAULT_SUBJECTS)
-        teachers = fields.ListField(fields.StringField(), default_factory=lambda: DEFAULT_TEACHERS)
+        description = fields.StringField(allow_none=True)
+        subjects = fields.ListField(fields.StringField(), default_factory=list)
+        teachers = fields.ListField(fields.StringField(), default_factory=list)
         is_active = fields.BooleanField(default_factory=lambda: True)
         created_at = fields.DateTimeField(default_factory=lambda: datetime.now(timezone.utc))
-        created_by = fields.IntegerField(required=True)
         
         class Meta:
             indexes = [("batch_name",), ("is_active",)]
@@ -118,189 +123,150 @@ if instance:
 
     @instance.register
     class Chapters(Document):
-        """Collection for chapter information"""
+        """Chapters collection"""
         chapter_id = fields.StringField(attribute="_id")
         batch_name = fields.StringField(required=True)
         subject = fields.StringField(required=True)
         chapter_no = fields.StringField(required=True)
         chapter_name = fields.StringField(required=True)
-        total_lectures = fields.IntegerField(default_factory=lambda: 0)
-        total_dpp = fields.IntegerField(default_factory=lambda: 0)
-        total_notes = fields.IntegerField(default_factory=lambda: 0)
+        description = fields.StringField(allow_none=True)
         is_active = fields.BooleanField(default_factory=lambda: True)
         created_at = fields.DateTimeField(default_factory=lambda: datetime.now(timezone.utc))
         
         class Meta:
-            indexes = [
-                ("batch_name", "subject", "chapter_no"),
-                ("is_active",)
-            ]
+            indexes = [("batch_name",), ("subject",), ("chapter_no",)]
             collection_name = "chapters"
 
     @instance.register
     class Users(Document):
-        """Collection for user information and progress"""
+        """Users collection"""
         user_id = fields.IntegerField(attribute="_id")
-        first_name = fields.StringField(required=True)
-        last_name = fields.StringField(allow_none=True)
         username = fields.StringField(allow_none=True)
+        first_name = fields.StringField(allow_none=True)
+        last_name = fields.StringField(allow_none=True)
         is_premium = fields.BooleanField(default_factory=lambda: False)
-        premium_expiry = fields.DateTimeField(allow_none=True)
-        current_batch = fields.StringField(allow_none=True)
-        study_progress = fields.DictField(default_factory=dict)
-        total_downloads = fields.IntegerField(default_factory=lambda: 0)
-        total_time_spent = fields.IntegerField(default_factory=lambda: 0)  # in minutes
-        achievements = fields.ListField(fields.StringField(), default_factory=list)
+        premium_expires = fields.DateTimeField(allow_none=True)
         joined_at = fields.DateTimeField(default_factory=lambda: datetime.now(timezone.utc))
         last_active = fields.DateTimeField(default_factory=lambda: datetime.now(timezone.utc))
-        banned = fields.BooleanField(default_factory=lambda: False)
-        ban_reason = fields.StringField(allow_none=True)
-        banned_by = fields.IntegerField(allow_none=True)
-        banned_at = fields.DateTimeField(allow_none=True)
         
         class Meta:
-            indexes = [
-                ("username",),
-                ("is_premium",),
-                ("current_batch",),
-                ("last_active",)
-            ]
+            indexes = [("username",), ("is_premium",)]
             collection_name = "users"
 
     @instance.register
     class StudySessions(Document):
-        """Collection for tracking study sessions"""
+        """Study sessions collection"""
         session_id = fields.StringField(attribute="_id")
         user_id = fields.IntegerField(required=True)
         batch_name = fields.StringField(required=True)
         subject = fields.StringField(required=True)
-        chapter_no = fields.StringField(required=True)
-        content_type = fields.StringField(required=True)
+        chapter_no = fields.StringField(allow_none=True)
         start_time = fields.DateTimeField(default_factory=lambda: datetime.now(timezone.utc))
         end_time = fields.DateTimeField(allow_none=True)
-        duration = fields.IntegerField(default_factory=lambda: 0)  # in minutes
-        files_accessed = fields.ListField(fields.StringField(), default_factory=list)
+        duration_minutes = fields.IntegerField(default_factory=lambda: 0)
         
         class Meta:
-            indexes = [
-                ("user_id",),
-                ("batch_name",),
-                ("start_time",),
-                ("end_time",)
-            ]
+            indexes = [("user_id",), ("batch_name",), ("start_time",)]
             collection_name = "study_sessions"
 
     @instance.register
     class ContentAnalytics(Document):
-        """Collection for content analytics and insights"""
+        """Content analytics collection"""
         content_id = fields.StringField(attribute="_id")
         file_id = fields.StringField(required=True)
         batch_name = fields.StringField(required=True)
         subject = fields.StringField(required=True)
-        chapter_no = fields.StringField(required=True)
+        chapter_no = fields.StringField(allow_none=True)
         content_type = fields.StringField(required=True)
-        total_views = fields.IntegerField(default_factory=lambda: 0)
-        total_downloads = fields.IntegerField(default_factory=lambda: 0)
-        unique_viewers = fields.ListField(fields.IntegerField(), default_factory=list)
-        rating = fields.FloatField(default_factory=lambda: 0.0)
-        total_ratings = fields.IntegerField(default_factory=lambda: 0)
-        feedback = fields.ListField(fields.DictField(), default_factory=list)
-        last_accessed = fields.DateTimeField(default_factory=lambda: datetime.now(timezone.utc))
+        views = fields.IntegerField(default_factory=lambda: 0)
+        downloads = fields.IntegerField(default_factory=lambda: 0)
+        created_at = fields.DateTimeField(default_factory=lambda: datetime.now(timezone.utc))
         
         class Meta:
-            indexes = [
-                ("file_id",),
-                ("batch_name",),
-                ("subject",),
-                ("content_type",),
-                ("total_views",),
-                ("rating",)
-            ]
+            indexes = [("file_id",), ("batch_name",), ("content_type",)]
             collection_name = "content_analytics"
 
     @instance.register
     class BotSettings(Document):
-        """Collection for bot configuration and settings"""
+        """Bot settings collection"""
         setting_id = fields.StringField(attribute="_id")
         setting_name = fields.StringField(required=True, unique=True)
-        setting_value = fields.DictField(required=True)
-        setting_type = fields.StringField(required=True)  # string, int, bool, list, dict
+        setting_value = fields.StringField(required=True)
         description = fields.StringField(allow_none=True)
-        updated_by = fields.IntegerField(required=True)
         updated_at = fields.DateTimeField(default_factory=lambda: datetime.now(timezone.utc))
         
         class Meta:
-            indexes = [("setting_name",), ("updated_at",)]
+            indexes = [("setting_name",)]
             collection_name = "bot_settings"
 
     @instance.register
     class JoinRequests(Document):
-        """Collection for join requests"""
+        """Join requests collection"""
         request_id = fields.StringField(attribute="_id")
         user_id = fields.IntegerField(required=True)
-        chat_id = fields.IntegerField(required=True)
-        chat_title = fields.StringField(required=True)
-        chat_type = fields.StringField(required=True)
-        user_first_name = fields.StringField(required=True)
-        user_last_name = fields.StringField(allow_none=True)
-        user_username = fields.StringField(allow_none=True)
-        status = fields.StringField(default_factory=lambda: "pending")  # pending, approved, rejected
+        username = fields.StringField(allow_none=True)
+        first_name = fields.StringField(allow_none=True)
+        batch_name = fields.StringField(required=True)
+        status = fields.StringField(default_factory=lambda: "pending", choices=["pending", "approved", "rejected"])
         requested_at = fields.DateTimeField(default_factory=lambda: datetime.now(timezone.utc))
         processed_at = fields.DateTimeField(allow_none=True)
         processed_by = fields.IntegerField(allow_none=True)
-        notes = fields.StringField(allow_none=True)
         
         class Meta:
-            indexes = [
-                ("user_id",),
-                ("chat_id",),
-                ("status",),
-                ("requested_at",)
-            ]
+            indexes = [("user_id",), ("batch_name",), ("status",)]
             collection_name = "join_requests"
 
     @instance.register
     class Chats(Document):
-        """Collection for chat information"""
+        """Chats collection"""
         chat_id = fields.IntegerField(attribute="_id")
-        chat_title = fields.StringField(required=True)
-        chat_type = fields.StringField(required=True)  # group, supergroup, channel
+        chat_type = fields.StringField(required=True, choices=["private", "group", "supergroup", "channel"])
+        title = fields.StringField(allow_none=True)
+        username = fields.StringField(allow_none=True)
         is_active = fields.BooleanField(default_factory=lambda: True)
-        member_count = fields.IntegerField(default_factory=lambda: 0)
-        created_at = fields.DateTimeField(default_factory=lambda: datetime.now(timezone.utc))
-        last_activity = fields.DateTimeField(default_factory=lambda: datetime.now(timezone.utc))
+        joined_at = fields.DateTimeField(default_factory=lambda: datetime.now(timezone.utc))
         
         class Meta:
-            indexes = [
-                ("chat_type",),
-                ("is_active",),
-                ("last_activity",)
-            ]
+            indexes = [("chat_type",), ("username",), ("is_active",)]
             collection_name = "chats"
 
     @instance.register
     class GroupSettings(Document):
-        """Collection for group settings"""
+        """Group settings collection"""
         group_id = fields.IntegerField(attribute="_id")
-        welcome = fields.BooleanField(default_factory=lambda: True)
-        auto_delete = fields.BooleanField(default_factory=lambda: False)
-        auto_filter = fields.BooleanField(default_factory=lambda: True)
-        pm_filter = fields.BooleanField(default_factory=lambda: True)
-        auto_search = fields.BooleanField(default_factory=lambda: True)
-        welcome_message = fields.BooleanField(default_factory=lambda: True)
-        created_at = fields.DateTimeField(default_factory=lambda: datetime.now(timezone.utc))
+        group_name = fields.StringField(required=True)
+        allowed_batches = fields.ListField(fields.StringField(), default_factory=list)
+        allowed_subjects = fields.ListField(fields.StringField(), default_factory=list)
+        auto_approve_requests = fields.BooleanField(default_factory=lambda: False)
+        is_active = fields.BooleanField(default_factory=lambda: True)
         updated_at = fields.DateTimeField(default_factory=lambda: datetime.now(timezone.utc))
         
         class Meta:
-            indexes = [("group_id",), ("auto_filter",)]
+            indexes = [("group_name",), ("is_active",)]
             collection_name = "group_settings"
 
-    # Secondary database models if enabled
-    if MULTIPLE_DB and instance2:
-        @instance2.register
-        class StudyFiles2(StudyFiles):
-            class Meta:
-                collection_name = COLLECTION_NAME
+else:
+    # Placeholder classes when database is not available
+    class StudyFiles:
+        pass
+    class Batches:
+        pass
+    class Chapters:
+        pass
+    class Users:
+        pass
+    class StudySessions:
+        pass
+    class ContentAnalytics:
+        pass
+    class BotSettings:
+        pass
+    class JoinRequests:
+        pass
+    class Chats:
+        pass
+    class GroupSettings:
+        pass
 
 # Database utility functions
 async def save_study_file(media, batch_name, subject, teacher=None, 
@@ -405,3 +371,95 @@ async def init_db():
     except Exception as e:
         logger.error(f"Database initialization failed: {e}")
         return False
+
+# Additional utility functions for plugins
+async def get_study_files(limit=10, skip=0, batch_name=None, subject=None, content_type=None):
+    """Get study files with optional filtering"""
+    if not instance:
+        logger.warning("Database not initialized - cannot get study files")
+        return []
+        
+    try:
+        filter_query = {"is_active": True}
+        if batch_name:
+            filter_query["batch_name"] = batch_name
+        if subject:
+            filter_query["subject"] = subject
+        if content_type:
+            filter_query["content_type"] = content_type
+            
+        files = await StudyFiles.find(filter_query).skip(skip).limit(limit).to_list(length=limit)
+        return files
+    except Exception as e:
+        logger.error(f"Error getting study files: {e}")
+        return []
+
+async def search_study_files(query, limit=10, skip=0, batch_name=None, subject=None):
+    """Search study files by query"""
+    if not instance:
+        logger.warning("Database not initialized - cannot search study files")
+        return []
+        
+    try:
+        # Create text search query
+        search_query = {
+            "$text": {"$search": query},
+            "is_active": True
+        }
+        
+        if batch_name:
+            search_query["batch_name"] = batch_name
+        if subject:
+            search_query["subject"] = subject
+            
+        files = await StudyFiles.find(search_query).skip(skip).limit(limit).to_list(length=limit)
+        return files
+    except Exception as e:
+        logger.error(f"Error searching study files: {e}")
+        return []
+
+async def get_batch_info(batch_name):
+    """Get batch information"""
+    if not instance:
+        logger.warning("Database not initialized - cannot get batch info")
+        return None
+        
+    try:
+        batch = await Batches.find_one({"batch_name": batch_name, "is_active": True})
+        return batch
+    except Exception as e:
+        logger.error(f"Error getting batch info: {e}")
+        return None
+
+async def create_batch(batch_name, description=None, subjects=None, teachers=None, created_by=None):
+    """Create a new batch"""
+    if not instance:
+        logger.warning("Database not initialized - cannot create batch")
+        return False
+        
+    try:
+        # Check if batch already exists
+        existing_batch = await Batches.find_one({"batch_name": batch_name})
+        if existing_batch:
+            logger.warning(f"Batch already exists: {batch_name}")
+            return False
+            
+        # Create new batch
+        batch_doc = Batches(
+            batch_id=f"batch_{batch_name.lower().replace(' ', '_')}",
+            batch_name=batch_name,
+            description=description,
+            subjects=subjects or DEFAULT_SUBJECTS,
+            teachers=teachers or DEFAULT_TEACHERS
+        )
+        
+        await batch_doc.commit()
+        logger.info(f"Batch created: {batch_name}")
+        return True
+        
+    except Exception as e:
+        logger.error(f"Error creating batch: {e}")
+        return False
+
+# Alias for save_study_file to match plugin expectations
+save_file = save_study_file

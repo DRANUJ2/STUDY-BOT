@@ -1,9 +1,23 @@
-import asyncio
-from motor.motor_asyncio import AsyncIOMotorClient
-from umongo import Document, fields
-from umongo.frameworks.motor_asyncio import MotorAsyncIOInstance
-from typing import Optional, List, Dict, Any
+import logging
 from datetime import datetime
+from typing import Optional, List, Dict, Any
+
+# Try to import motor with error handling
+try:
+    from motor.motor_asyncio import AsyncIOMotorClient
+except ImportError as e:
+    print(f"Warning: Could not import motor in refer.py: {e}")
+    AsyncIOMotorClient = None
+
+# Try to import umongo with error handling
+try:
+    from umongo.frameworks.motor_asyncio import MotorAsyncIOInstance
+    from umongo import Document, fields
+except ImportError as e:
+    print(f"Warning: Could not import umongo in refer.py: {e}")
+    MotorAsyncIOInstance = None
+    Document = None
+    fields = None
 
 # Try to import configuration
 try:
@@ -13,11 +27,17 @@ except ImportError:
     DATABASE_URI = "mongodb://localhost:27017"
     DATABASE_NAME = "study_bot"
 
+# Initialize variables to None first
+motor_client = None
+db = None
+instance = None
+
 # Initialize Motor instance with proper error handling
 try:
-    motor_client = AsyncIOMotorClient(DATABASE_URI)
-    db = motor_client[DATABASE_NAME]
-    instance = MotorAsyncIOInstance(db)
+    if AsyncIOMotorClient and MotorAsyncIOInstance and DATABASE_URI:
+        motor_client = AsyncIOMotorClient(DATABASE_URI)
+        db = motor_client[DATABASE_NAME]
+        instance = MotorAsyncIOInstance(db)
 except Exception as e:
     print(f"Warning: Could not initialize database connection in refer.py: {e}")
     motor_client = None

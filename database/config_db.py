@@ -1,18 +1,28 @@
-from motor.motor_asyncio import AsyncIOMotorClient
-from datetime import datetime, timedelta
-from typing import Dict, List, Optional, Any
 import logging
+from datetime import datetime, timedelta, timezone
+from typing import Dict, List, Optional, Any
+
+# Try to import motor with error handling
+try:
+    from motor.motor_asyncio import AsyncIOMotorClient
+except ImportError as e:
+    print(f"Warning: Could not import motor in config_db.py: {e}")
+    AsyncIOMotorClient = None
 
 logger = logging.getLogger(__name__)
 
 class Database:
-    def __init__(self, uri, db_name):
+    def __init__(self, uri, database_name):
+        if AsyncIOMotorClient is None:
+            raise ImportError("Motor is not available")
         self.client = AsyncIOMotorClient(uri)
-        self.db = self.client[db_name]
-        self.col = self.db.user
-        self.config_col = self.db.configuration
-        self.settings_col = self.db.settings
-        self.features_col = self.db.features
+        self.db = self.client[database_name]
+        # Collections
+        self.col = self.db.config
+        self.misc = self.db.misc
+        self.settings = self.db.settings
+        self.backups = self.db.backups
+        self.logs = self.db.logs
 
     async def update_top_messages(self, user_id, message_text):
         """Update top messages for user"""
@@ -62,7 +72,7 @@ class Database:
     async def get_config(self, key: str, default: Any = None):
         """Get configuration value by key"""
         try:
-            config = await self.config_col.find_one({"key": key})
+            config = await self.col.find_one({"key": key})
             return config.get("value") if config else default
         except Exception as e:
             logger.error(f"Error getting config {key}: {e}")
@@ -71,7 +81,7 @@ class Database:
     async def set_config(self, key: str, value: Any):
         """Set configuration value by key"""
         try:
-            await self.config_col.update_one(
+            await self.col.update_one(
                 {"key": key},
                 {"$set": {"value": value, "updated_at": datetime.utcnow()}},
                 upsert=True
@@ -84,7 +94,7 @@ class Database:
     async def delete_config(self, key: str):
         """Delete configuration by key"""
         try:
-            await self.config_col.delete_one({"key": key})
+            await self.col.delete_one({"key": key})
             return True
         except Exception as e:
             logger.error(f"Error deleting config {key}: {e}")
@@ -93,7 +103,7 @@ class Database:
     async def get_all_configs(self):
         """Get all configuration values"""
         try:
-            configs = await self.config_col.find({}).to_list(length=None)
+            configs = await self.col.find({}).to_list(length=None)
             return {config["key"]: config["value"] for config in configs}
         except Exception as e:
             logger.error(f"Error getting all configs: {e}")
@@ -102,7 +112,7 @@ class Database:
     async def get_setting(self, key: str, default: Any = None):
         """Get setting value by key"""
         try:
-            setting = await self.settings_col.find_one({"key": key})
+            setting = await self.settings.find_one({"key": key})
             return setting.get("value") if setting else default
         except Exception as e:
             logger.error(f"Error getting setting {key}: {e}")
@@ -111,7 +121,7 @@ class Database:
     async def set_setting(self, key: str, value: Any):
         """Set setting value by key"""
         try:
-            await self.settings_col.update_one(
+            await self.settings.update_one(
                 {"key": key},
                 {"$set": {"value": value, "updated_at": datetime.utcnow()}},
                 upsert=True
@@ -124,7 +134,7 @@ class Database:
     async def delete_setting(self, key: str):
         """Delete setting by key"""
         try:
-            await self.settings_col.delete_one({"key": key})
+            await self.settings.delete_one({"key": key})
             return True
         except Exception as e:
             logger.error(f"Error deleting setting {key}: {e}")
@@ -133,7 +143,7 @@ class Database:
     async def get_all_settings(self):
         """Get all setting values"""
         try:
-            settings = await self.settings_col.find({}).to_list(length=None)
+            settings = await self.settings.find({}).to_list(length=None)
             return {setting["key"]: setting["value"] for setting in settings}
         except Exception as e:
             logger.error(f"Error getting all settings: {e}")
@@ -142,7 +152,7 @@ class Database:
     async def is_feature_enabled(self, feature_name: str) -> bool:
         """Check if a feature is enabled"""
         try:
-            feature = await self.features_col.find_one({"name": feature_name})
+            feature = await self.misc.find_one({"name": feature_name})
             if feature:
                 return feature.get("enabled", False)
             return False
@@ -153,7 +163,7 @@ class Database:
     async def enable_feature(self, feature_name: str, description: str = ""):
         """Enable a feature"""
         try:
-            await self.features_col.update_one(
+            await self.misc.update_one(
                 {"name": feature_name},
                 {
                     "$set": {
@@ -173,7 +183,7 @@ class Database:
     async def disable_feature(self, feature_name: str, reason: str = ""):
         """Disable a feature"""
         try:
-            await self.features_col.update_one(
+            await self.misc.update_one(
                 {"name": feature_name},
                 {
                     "$set": {
@@ -193,7 +203,7 @@ class Database:
     async def get_feature_info(self, feature_name: str):
         """Get feature information"""
         try:
-            feature = await self.features_col.find_one({"name": feature_name})
+            feature = await self.misc.find_one({"name": feature_name})
             return feature
         except Exception as e:
             logger.error(f"Error getting feature info {feature_name}: {e}")
@@ -202,7 +212,7 @@ class Database:
     async def get_all_features(self):
         """Get all features"""
         try:
-            features = await self.features_col.find({}).to_list(length=None)
+            features = await self.misc.find({}).to_list(length=None)
             return features
         except Exception as e:
             logger.error(f"Error getting all features: {e}")
@@ -224,7 +234,7 @@ class Database:
             else:
                 feature_data["disabled_at"] = datetime.utcnow()
             
-            await self.features_col.insert_one(feature_data)
+            await self.misc.insert_one(feature_data)
             return True
         except Exception as e:
             logger.error(f"Error adding feature {feature_name}: {e}")
@@ -233,7 +243,7 @@ class Database:
     async def delete_feature(self, feature_name: str):
         """Delete a feature"""
         try:
-            await self.features_col.delete_one({"name": feature_name})
+            await self.misc.delete_one({"name": feature_name})
             return True
         except Exception as e:
             logger.error(f"Error deleting feature {feature_name}: {e}")
@@ -242,7 +252,7 @@ class Database:
     async def get_bot_config(self):
         """Get bot configuration"""
         try:
-            config = await self.config_col.find_one({"key": "bot_config"})
+            config = await self.col.find_one({"key": "bot_config"})
             return config.get("value") if config else {}
         except Exception as e:
             logger.error(f"Error getting bot config: {e}")
@@ -251,7 +261,7 @@ class Database:
     async def set_bot_config(self, config_data: Dict):
         """Set bot configuration"""
         try:
-            await self.config_col.update_one(
+            await self.col.update_one(
                 {"key": "bot_config"},
                 {"$set": {"value": config_data, "updated_at": datetime.utcnow()}},
                 upsert=True
@@ -264,7 +274,7 @@ class Database:
     async def get_user_config(self, user_id: int):
         """Get user configuration"""
         try:
-            config = await self.config_col.find_one({"key": f"user_config_{user_id}"})
+            config = await self.col.find_one({"key": f"user_config_{user_id}"})
             return config.get("value") if config else {}
         except Exception as e:
             logger.error(f"Error getting user config {user_id}: {e}")
@@ -273,7 +283,7 @@ class Database:
     async def set_user_config(self, user_id: int, config_data: Dict):
         """Set user configuration"""
         try:
-            await self.config_col.update_one(
+            await self.col.update_one(
                 {"key": f"user_config_{user_id}"},
                 {"$set": {"value": config_data, "updated_at": datetime.utcnow()}},
                 upsert=True
@@ -286,7 +296,7 @@ class Database:
     async def get_chat_config(self, chat_id: int):
         """Get chat configuration"""
         try:
-            config = await self.config_col.find_one({"key": f"chat_config_{chat_id}"})
+            config = await self.col.find_one({"key": f"chat_config_{chat_id}"})
             return config.get("value") if config else {}
         except Exception as e:
             logger.error(f"Error getting chat config {chat_id}: {e}")
@@ -295,7 +305,7 @@ class Database:
     async def set_chat_config(self, chat_id: int, config_data: Dict):
         """Set chat configuration"""
         try:
-            await self.config_col.update_one(
+            await self.col.update_one(
                 {"key": f"chat_config_{chat_id}"},
                 {"$set": {"value": config_data, "updated_at": datetime.utcnow()}},
                 upsert=True
@@ -308,7 +318,7 @@ class Database:
     async def get_global_config(self):
         """Get global configuration"""
         try:
-            config = await self.config_col.find_one({"key": "global_config"})
+            config = await self.col.find_one({"key": "global_config"})
             return config.get("value") if config else {}
         except Exception as e:
             logger.error(f"Error getting global config: {e}")
@@ -317,7 +327,7 @@ class Database:
     async def set_global_config(self, config_data: Dict):
         """Set global configuration"""
         try:
-            await self.config_col.update_one(
+            await self.col.update_one(
                 {"key": "global_config"},
                 {"$set": {"value": config_data, "updated_at": datetime.utcnow()}},
                 upsert=True
@@ -338,7 +348,7 @@ class Database:
             }
             
             # Store backup in config collection
-            await self.config_col.update_one(
+            await self.col.update_one(
                 {"key": "config_backup"},
                 {"$set": {"value": backup_data}},
                 upsert=True
@@ -353,7 +363,7 @@ class Database:
     async def restore_configs(self, backup_key: str = "config_backup"):
         """Restore configurations from backup"""
         try:
-            backup = await self.config_col.find_one({"key": backup_key})
+            backup = await self.col.find_one({"key": backup_key})
             if not backup:
                 logger.error("Backup not found")
                 return False
@@ -370,7 +380,7 @@ class Database:
             
             # Restore features
             for feature in backup_data.get("features", []):
-                await self.features_col.update_one(
+                await self.misc.update_one(
                     {"name": feature["name"]},
                     {"$set": feature},
                     upsert=True
@@ -388,16 +398,16 @@ class Database:
             stats = {}
             
             # Count configs
-            stats["total_configs"] = await self.config_col.count_documents({})
-            stats["total_settings"] = await self.settings_col.count_documents({})
-            stats["total_features"] = await self.features_col.count_documents({})
+            stats["total_configs"] = await self.col.count_documents({})
+            stats["total_settings"] = await self.settings.count_documents({})
+            stats["total_features"] = await self.misc.count_documents({})
             
             # Count enabled features
-            stats["enabled_features"] = await self.features_col.count_documents({"enabled": True})
-            stats["disabled_features"] = await self.features_col.count_documents({"enabled": False})
+            stats["enabled_features"] = await self.misc.count_documents({"enabled": True})
+            stats["disabled_features"] = await self.misc.count_documents({"enabled": False})
             
             # Get recent updates
-            recent_configs = await self.config_col.find({}).sort("updated_at", -1).limit(5).to_list(length=5)
+            recent_configs = await self.col.find({}).sort("updated_at", -1).limit(5).to_list(length=5)
             stats["recent_configs"] = recent_configs
             
             return stats
@@ -411,7 +421,7 @@ class Database:
             cutoff_date = datetime.utcnow() - timedelta(days=days_old)
             
             # Clean old backups
-            old_backups = await self.config_col.delete_many({
+            old_backups = await self.col.delete_many({
                 "key": {"$regex": "^config_backup_"},
                 "value.timestamp": {"$lt": cutoff_date}
             })

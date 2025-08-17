@@ -7,11 +7,27 @@ from typing import Dict, List
 from collections import defaultdict
 from pymongo.errors import DuplicateKeyError
 from umongo import Instance, Document, fields
-from motor.motor_asyncio import AsyncIOMotorClient
 from marshmallow import ValidationError
 from datetime import datetime, timedelta
 import logging
-from config import *
+
+# Try to import motor with error handling
+try:
+    from motor.motor_asyncio import AsyncIOMotorClient
+except ImportError as e:
+    print(f"Warning: Could not import motor in ia_filterdb.py: {e}")
+    AsyncIOMotorClient = None
+
+# Try to import config with error handling
+try:
+    from config import *
+except ImportError as e:
+    print(f"Warning: Could not import config in ia_filterdb.py: {e}")
+    # Fallback configuration values
+    DATABASE_URI = ""
+    DATABASE_URI2 = ""
+    DATABASE_NAME = "StudyBotDB"
+    COLLECTION_NAME = "media_files"
 
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
@@ -19,11 +35,20 @@ logger.setLevel(logging.INFO)
 # Global cache for DB size
 _db_stats_cache = {"timestamp": None, "primary_size": 0.0}
 
+# Initialize variables to None first
+client = None
+db = None
+instance = None
+client2 = None
+db2 = None
+instance2 = None
+
 # Primary DB - Initialize with error handling
 try:
-    client = AsyncIOMotorClient(DATABASE_URI)
-    db = client[DATABASE_NAME]
-    instance = Instance.from_db(db)
+    if AsyncIOMotorClient and DATABASE_URI:
+        client = AsyncIOMotorClient(DATABASE_URI)
+        db = client[DATABASE_NAME]
+        instance = Instance.from_db(db)
 except Exception as e:
     print(f"Warning: Could not initialize primary database connection in ia_filterdb.py: {e}")
     client = None
@@ -32,9 +57,10 @@ except Exception as e:
 
 # Secondary DB - Initialize with error handling
 try:
-    client2 = AsyncIOMotorClient(DATABASE_URI2)
-    db2 = client2[DATABASE_NAME]
-    instance2 = Instance.from_db(db2)
+    if AsyncIOMotorClient and DATABASE_URI2:
+        client2 = AsyncIOMotorClient(DATABASE_URI2)
+        db2 = client2[DATABASE_NAME]
+        instance2 = Instance.from_db(db2)
 except Exception as e:
     print(f"Warning: Could not initialize secondary database connection in ia_filterdb.py: {e}")
     client2 = None

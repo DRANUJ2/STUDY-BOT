@@ -1,17 +1,27 @@
-from motor.motor_asyncio import AsyncIOMotorClient
-from datetime import datetime, timedelta
-from typing import List, Dict, Optional
 import logging
+from datetime import datetime, timedelta, timezone
+from typing import Dict, List, Optional, Any
+
+# Try to import motor with error handling
+try:
+    from motor.motor_asyncio import AsyncIOMotorClient
+except ImportError as e:
+    print(f"Warning: Could not import motor in topdb.py: {e}")
+    AsyncIOMotorClient = None
 
 logger = logging.getLogger(__name__)
 
 class Database:
-    def __init__(self, uri, db_name):
+    def __init__(self, uri, database_name):
+        if AsyncIOMotorClient is None:
+            raise ImportError("Motor is not available")
         self.client = AsyncIOMotorClient(uri)
-        self.db = self.client[db_name]
-        self.col = self.db.user
-        self.study_stats = self.db.study_stats
-        self.user_activity = self.db.user_activity
+        self.db = self.client[database_name]
+        # Collections
+        self.col = self.db.top_messages
+        self.stats = self.db.stats
+        self.analytics = self.db.analytics
+        self.leaderboard = self.db.leaderboard
 
     async def update_top_messages(self, user_id, message_text):
         """Update top messages for user"""
@@ -70,7 +80,7 @@ class Database:
                 "timestamp": datetime.utcnow()
             }
             
-            await self.study_stats.insert_one(stats_data)
+            await self.stats.insert_one(stats_data)
             return True
         except Exception as e:
             logger.error(f"Error updating study stats: {e}")
@@ -95,7 +105,7 @@ class Database:
                 {"$sort": {"total_duration": -1}}
             ]
             
-            results = await self.study_stats.aggregate(pipeline).to_list(length=None)
+            results = await self.stats.aggregate(pipeline).to_list(length=None)
             return results
         except Exception as e:
             logger.error(f"Error getting user study stats: {e}")
@@ -117,7 +127,7 @@ class Database:
                 {"$limit": limit}
             ]
             
-            results = await self.study_stats.aggregate(pipeline).to_list(length=limit)
+            results = await self.stats.aggregate(pipeline).to_list(length=limit)
             return results
         except Exception as e:
             logger.error(f"Error getting top students: {e}")
@@ -139,7 +149,7 @@ class Database:
                 {"$sort": {"total_duration": -1}}
             ]
             
-            results = await self.study_stats.aggregate(pipeline).to_list(length=None)
+            results = await self.stats.aggregate(pipeline).to_list(length=None)
             
             # Calculate unique user count for each chapter
             for result in results:
@@ -170,7 +180,7 @@ class Database:
                 {"$sort": {"total_duration": -1}}
             ]
             
-            results = await self.study_stats.aggregate(pipeline).to_list(length=None)
+            results = await self.stats.aggregate(pipeline).to_list(length=None)
             
             # Calculate unique user count for each subject-chapter combination
             for result in results:
@@ -192,7 +202,7 @@ class Database:
                 "timestamp": datetime.utcnow()
             }
             
-            await self.user_activity.insert_one(activity_data)
+            await self.analytics.insert_one(activity_data)
             return True
         except Exception as e:
             logger.error(f"Error updating user activity: {e}")
@@ -203,7 +213,7 @@ class Database:
         try:
             cutoff_date = datetime.utcnow() - timedelta(days=days)
             
-            activities = await self.user_activity.find({
+            activities = await self.analytics.find({
                 "user_id": user_id,
                 "timestamp": {"$gte": cutoff_date}
             }).sort("timestamp", -1).limit(limit).to_list(length=limit)
@@ -228,7 +238,7 @@ class Database:
                 {"$sort": {"count": -1}}
             ]
             
-            results = await self.user_activity.aggregate(pipeline).to_list(length=None)
+            results = await self.analytics.aggregate(pipeline).to_list(length=None)
             
             # Calculate unique user count for each activity type
             for result in results:
@@ -259,7 +269,7 @@ class Database:
                 {"$sort": {"_id.date": -1}}
             ]
             
-            results = await self.study_stats.aggregate(pipeline).to_list(length=None)
+            results = await self.stats.aggregate(pipeline).to_list(length=None)
             
             # Calculate unique user count for each date-subject combination
             for result in results:
@@ -290,7 +300,7 @@ class Database:
                 {"$sort": {"_id.year": -1, "_id.week": -1}}
             ]
             
-            results = await self.study_stats.aggregate(pipeline).to_list(length=None)
+            results = await self.stats.aggregate(pipeline).to_list(length=None)
             
             # Calculate unique user count for each week
             for result in results:
@@ -321,7 +331,7 @@ class Database:
                 {"$sort": {"_id.year": -1, "_id.month": -1}}
             ]
             
-            results = await self.study_stats.aggregate(pipeline).to_list(length=None)
+            results = await self.stats.aggregate(pipeline).to_list(length=None)
             
             # Calculate unique user count for each month
             for result in results:
@@ -339,12 +349,12 @@ class Database:
             cutoff_date = datetime.utcnow() - timedelta(days=days_old)
             
             # Clean old study stats
-            old_stats = await self.study_stats.delete_many({
+            old_stats = await self.stats.delete_many({
                 "timestamp": {"$lt": cutoff_date}
             })
             
             # Clean old user activity
-            old_activity = await self.user_activity.delete_many({
+            old_activity = await self.analytics.delete_many({
                 "timestamp": {"$lt": cutoff_date}
             })
             
@@ -372,8 +382,8 @@ class Database:
             
             # Collection counts
             info["total_users"] = await self.col.count_documents({})
-            info["total_study_stats"] = await self.study_stats.count_documents({})
-            info["total_user_activity"] = await self.user_activity.count_documents({})
+            info["total_study_stats"] = await self.stats.count_documents({})
+            info["total_user_activity"] = await self.analytics.count_documents({})
             
             # Database size info
             db_stats = await self.db.command("dbstats")
