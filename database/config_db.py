@@ -431,6 +431,10 @@ class Database:
         except Exception as e:
             logger.error(f"Error closing ConfigDB connection: {e}")
 
-# Create global database instance
-from config import *
-mdb = Database(DATABASE_URI, "StudyBotConfigDB")
+# Create global database instance with error handling
+try:
+    from config import *
+    mdb = Database(DATABASE_URI, "StudyBotConfigDB")
+except Exception as e:
+    print(f"Warning: Could not initialize database connection in config_db.py: {e}")
+    mdb = None

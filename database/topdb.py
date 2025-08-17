@@ -395,6 +395,10 @@ class Database:
         except Exception as e:
             logger.error(f"Error closing TopDB connection: {e}")
 
-# Create global database instance
-from config import *
-topdb = Database(DATABASE_URI, "StudyBotTopDB")
+# Create global database instance with error handling
+try:
+    from config import *
+    topdb = Database(DATABASE_URI, "StudyBotTopDB")
+except Exception as e:
+    print(f"Warning: Could not initialize database connection in topdb.py: {e}")
+    topdb = None

@@ -10,7 +10,7 @@ logger = logging.getLogger(__name__)
 
 class Database:    
     def __init__(self, uri, database_name):
-        self._client = motor.motor_asyncio.AsyncIOMotorClient(uri)
+        self._client = AsyncIOMotorClient(uri)
         self.db = self._client[database_name]
         # Collections
         self.col = self.db.users
@@ -545,6 +545,10 @@ class Database:
         except Exception as e:
             logger.error(f"Error closing database connection: {e}")
 
-# Create global database instance
-from config import *
-db = Database(DATABASE_URI, DATABASE_NAME)
+# Create global database instance with error handling
+try:
+    from config import *
+    db = Database(DATABASE_URI, DATABASE_NAME)
+except Exception as e:
+    print(f"Warning: Could not initialize database connection in users_chats_db.py: {e}")
+    db = None

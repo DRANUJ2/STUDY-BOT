@@ -46,6 +46,11 @@ async def studybot_start():
     
     # Check database connection
     # YEH POORA BLOCK FUNCTION KE ANDAR HONA CHAHIYE
+    if client is None:
+        logging.error("❌ Database client is not available")
+        logging.error(" कृपया .env file mein DATABASE_URI ko check karein aur MongoDB server ko restart karein.")
+        return # Agar connection fail ho to bot ko aage na badhayein
+        
     try:
         await client.admin.command('ping')
         logging.info("✅ Database se safaltapoorvak connect ho gaya.")

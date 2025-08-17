@@ -39,6 +39,17 @@ def test_config_import():
         print(f"❌ Config import failed: {e}")
         return False
 
+def test_bot_import():
+    """Test bot import"""
+    try:
+        # Test importing bot modules
+        from bot import studybot_start
+        print("✅ Bot module import successful")
+        return True
+    except Exception as e:
+        print(f"❌ Bot module import failed: {e}")
+        return False
+
 def main():
     """Main test function"""
     print("Testing motor import fix...")
@@ -53,8 +64,11 @@ def main():
     # Test database imports
     db_ok = test_database_imports()
     
+    # Test bot import
+    bot_ok = test_bot_import()
+    
     print("=" * 50)
-    if motor_ok and config_ok and db_ok:
+    if motor_ok and config_ok and db_ok and bot_ok:
         print("✅ All tests passed! Motor import issue should be fixed.")
         return 0
     else:
