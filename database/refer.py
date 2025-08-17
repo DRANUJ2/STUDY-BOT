@@ -131,7 +131,7 @@ class ReferralManager:
     
     def __init__(self, db_instance):
         self.db = db_instance
-        if db_instance:
+        if db_instance is not None:
             self.referrals = db_instance.referrals
             self.referral_codes = db_instance.referral_codes
             self.referral_bonuses = db_instance.referral_bonuses
@@ -142,7 +142,7 @@ class ReferralManager:
     
     async def create_referral_code(self, user_id: int, username: str = None) -> Optional[str]:
         """Create a new referral code for a user"""
-        if not self.db:
+        if self.db is None:
             print("Database not available")
             return None
             
@@ -177,7 +177,7 @@ class ReferralManager:
     
     async def get_referral_code(self, user_id: int) -> Optional[str]:
         """Get referral code for a user"""
-        if not self.db:
+        if self.db is None:
             print("Database not available")
             return None
             
@@ -190,7 +190,7 @@ class ReferralManager:
     
     async def validate_referral_code(self, code: str) -> Optional[Dict[str, Any]]:
         """Validate a referral code"""
-        if not self.db:
+        if self.db is None:
             print("Database not available")
             return None
             
@@ -221,7 +221,7 @@ class ReferralManager:
                              referrer_name: str, referred_name: str,
                              referrer_username: str = None, referred_username: str = None) -> bool:
         """Create a new referral"""
-        if not self.db:
+        if self.db is None:
             print("Database not available")
             return False
             
@@ -262,7 +262,7 @@ class ReferralManager:
     
     async def complete_referral(self, referred_id: int) -> bool:
         """Mark a referral as completed"""
-        if not self.db:
+        if self.db is None:
             print("Database not available")
             return False
             
@@ -299,7 +299,7 @@ class ReferralManager:
     
     async def get_user_referrals(self, user_id: int) -> List[Dict[str, Any]]:
         """Get all referrals for a user"""
-        if not self.db:
+        if self.db is None:
             print("Database not available")
             return []
             
@@ -326,7 +326,7 @@ class ReferralManager:
     
     async def get_referral_stats(self, user_id: int) -> Dict[str, Any]:
         """Get referral statistics for a user"""
-        if not self.db:
+        if self.db is None:
             print("Database not available")
             return {}
             
@@ -365,7 +365,7 @@ class ReferralManager:
     
     async def claim_bonus(self, user_id: int, bonus_id: str) -> bool:
         """Claim a referral bonus"""
-        if not self.db:
+        if self.db is None:
             print("Database not available")
             return False
             
