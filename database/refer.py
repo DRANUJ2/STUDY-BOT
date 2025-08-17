@@ -5,92 +5,127 @@ from umongo.frameworks.motor_asyncio import MotorAsyncIOInstance
 from typing import Optional, List, Dict, Any
 from datetime import datetime
 
-# Initialize Motor instance
-motor_client = AsyncIOMotorClient("mongodb://localhost:27017")
-db = motor_client.study_bot
-instance = MotorAsyncIOInstance(db)
+# Try to import configuration
+try:
+    from config import DATABASE_URI, DATABASE_NAME
+except ImportError:
+    # Fallback configuration
+    DATABASE_URI = "mongodb://localhost:27017"
+    DATABASE_NAME = "study_bot"
 
-@instance.register
-class Referral(Document):
-    """Referral model for tracking user referrals"""
-    
-    referrer_id = fields.IntegerField(required=True, index=True)
-    referred_id = fields.IntegerField(required=True, unique=True, index=True)
-    referrer_name = fields.StringField(required=True)
-    referred_name = fields.StringField(required=True)
-    referrer_username = fields.StringField()
-    referred_username = fields.StringField()
-    referral_code = fields.StringField(required=True, unique=True, index=True)
-    status = fields.StringField(default_factory=lambda: "pending", choices=["pending", "completed", "expired"])
-    bonus_claimed = fields.BooleanField(default_factory=lambda: False)
-    bonus_amount = fields.IntegerField(default_factory=lambda: 0)
-    created_at = fields.DateTimeField(default_factory=datetime.utcnow)
-    completed_at = fields.DateTimeField()
-    expires_at = fields.DateTimeField()
-    
-    class Meta:
-        collection_name = "referrals"
-        indexes = [
-            "referrer_id",
-            "referred_id", 
-            "referral_code",
-            "status"
-        ]
+# Initialize Motor instance with proper error handling
+try:
+    motor_client = AsyncIOMotorClient(DATABASE_URI)
+    db = motor_client[DATABASE_NAME]
+    instance = MotorAsyncIOInstance(db)
+except Exception as e:
+    print(f"Warning: Could not initialize database connection in refer.py: {e}")
+    motor_client = None
+    db = None
+    instance = None
 
-@instance.register
-class ReferralCode(Document):
-    """Referral code model for generating and managing codes"""
-    
-    user_id = fields.IntegerField(required=True, unique=True, index=True)
-    username = fields.StringField()
-    referral_code = fields.StringField(required=True, unique=True, index=True)
-    is_active = fields.BooleanField(default_factory=lambda: True)
-    max_uses = fields.IntegerField(default_factory=lambda: -1)  # -1 means unlimited
-    current_uses = fields.IntegerField(default_factory=lambda: 0)
-    bonus_per_referral = fields.IntegerField(default_factory=lambda: 100)
-    created_at = fields.DateTimeField(default_factory=datetime.utcnow)
-    last_used = fields.DateTimeField()
-    
-    class Meta:
-        collection_name = "referral_codes"
-        indexes = [
-            "user_id",
-            "referral_code",
-            "is_active"
-        ]
+# Only register document classes if instance is available
+if instance:
+    @instance.register
+    class Referral(Document):
+        """Referral model for tracking user referrals"""
+        
+        referrer_id = fields.IntegerField(required=True, index=True)
+        referred_id = fields.IntegerField(required=True, unique=True, index=True)
+        referrer_name = fields.StringField(required=True)
+        referred_name = fields.StringField(required=True)
+        referrer_username = fields.StringField()
+        referred_username = fields.StringField()
+        referral_code = fields.StringField(required=True, unique=True, index=True)
+        status = fields.StringField(default_factory=lambda: "pending", choices=["pending", "completed", "expired"])
+        bonus_claimed = fields.BooleanField(default_factory=lambda: False)
+        bonus_amount = fields.IntegerField(default_factory=lambda: 0)
+        created_at = fields.DateTimeField(default_factory=datetime.utcnow)
+        completed_at = fields.DateTimeField()
+        expires_at = fields.DateTimeField()
+        
+        class Meta:
+            collection_name = "referrals"
+            indexes = [
+                "referrer_id",
+                "referred_id", 
+                "referral_code",
+                "status"
+            ]
 
-@instance.register
-class ReferralBonus(Document):
-    """Referral bonus model for tracking bonuses"""
+    @instance.register
+    class ReferralCode(Document):
+        """Referral code model for generating and managing codes"""
+        
+        user_id = fields.IntegerField(required=True, unique=True, index=True)
+        username = fields.StringField()
+        referral_code = fields.StringField(required=True, unique=True, index=True)
+        is_active = fields.BooleanField(default_factory=lambda: True)
+        max_uses = fields.IntegerField(default_factory=lambda: -1)  # -1 means unlimited
+        current_uses = fields.IntegerField(default_factory=lambda: 0)
+        bonus_per_referral = fields.IntegerField(default_factory=lambda: 100)
+        created_at = fields.DateTimeField(default_factory=datetime.utcnow)
+        last_used = fields.DateTimeField()
+        
+        class Meta:
+            collection_name = "referral_codes"
+            indexes = [
+                "user_id",
+                "referral_code",
+                "is_active"
+            ]
+
+    @instance.register
+    class ReferralBonus(Document):
+        """Referral bonus model for tracking bonuses"""
+        
+        user_id = fields.IntegerField(required=True, index=True)
+        referral_id = fields.ReferenceField(Referral, required=True)
+        bonus_amount = fields.IntegerField(required=True)
+        bonus_type = fields.StringField(default_factory=lambda: "referral", choices=["referral", "signup", "activity"])
+        status = fields.StringField(default_factory=lambda: "pending", choices=["pending", "credited", "expired"])
+        credited_at = fields.DateTimeField()
+        expires_at = fields.DateTimeField()
+        created_at = fields.DateTimeField(default_factory=datetime.utcnow)
+        
+        class Meta:
+            collection_name = "referral_bonuses"
+            indexes = [
+                "user_id",
+                "referral_id",
+                "status"
+            ]
+else:
+    # Placeholder classes when database is not available
+    class Referral:
+        pass
     
-    user_id = fields.IntegerField(required=True, index=True)
-    referral_id = fields.ReferenceField(Referral, required=True)
-    bonus_amount = fields.IntegerField(required=True)
-    bonus_type = fields.StringField(default_factory=lambda: "referral", choices=["referral", "signup", "activity"])
-    status = fields.StringField(default_factory=lambda: "pending", choices=["pending", "credited", "expired"])
-    credited_at = fields.DateTimeField()
-    expires_at = fields.DateTimeField()
-    created_at = fields.DateTimeField(default_factory=datetime.utcnow)
+    class ReferralCode:
+        pass
     
-    class Meta:
-        collection_name = "referral_bonuses"
-        indexes = [
-            "user_id",
-            "referral_id",
-            "status"
-        ]
+    class ReferralBonus:
+        pass
 
 class ReferralManager:
     """Manager class for referral operations"""
     
     def __init__(self, db_instance):
         self.db = db_instance
-        self.referrals = db.referrals
-        self.referral_codes = db.referral_codes
-        self.referral_bonuses = db.referral_bonuses
+        if db_instance:
+            self.referrals = db.referrals
+            self.referral_codes = db.referral_codes
+            self.referral_bonuses = db.referral_bonuses
+        else:
+            self.referrals = None
+            self.referral_codes = None
+            self.referral_bonuses = None
     
     async def create_referral_code(self, user_id: int, username: str = None) -> Optional[str]:
         """Create a new referral code for a user"""
+        if not self.db:
+            print("Database not available")
+            return None
+            
         try:
             # Check if user already has a referral code
             existing = await self.referral_codes.find_one({"user_id": user_id})
@@ -122,6 +157,10 @@ class ReferralManager:
     
     async def get_referral_code(self, user_id: int) -> Optional[str]:
         """Get referral code for a user"""
+        if not self.db:
+            print("Database not available")
+            return None
+            
         try:
             doc = await self.referral_codes.find_one({"user_id": user_id, "is_active": True})
             return doc["referral_code"] if doc else None
@@ -131,6 +170,10 @@ class ReferralManager:
     
     async def validate_referral_code(self, code: str) -> Optional[Dict[str, Any]]:
         """Validate a referral code"""
+        if not self.db:
+            print("Database not available")
+            return None
+            
         try:
             doc = await self.referral_codes.find_one({
                 "referral_code": code,
@@ -158,6 +201,10 @@ class ReferralManager:
                              referrer_name: str, referred_name: str,
                              referrer_username: str = None, referred_username: str = None) -> bool:
         """Create a new referral"""
+        if not self.db:
+            print("Database not available")
+            return False
+            
         try:
             # Check if user was already referred
             existing = await self.referrals.find_one({"referred_id": referred_id})
@@ -195,6 +242,10 @@ class ReferralManager:
     
     async def complete_referral(self, referred_id: int) -> bool:
         """Mark a referral as completed"""
+        if not self.db:
+            print("Database not available")
+            return False
+            
         try:
             referral = await self.referrals.find_one({"referred_id": referred_id})
             if not referral:
@@ -228,6 +279,10 @@ class ReferralManager:
     
     async def get_user_referrals(self, user_id: int) -> List[Dict[str, Any]]:
         """Get all referrals for a user"""
+        if not self.db:
+            print("Database not available")
+            return []
+            
         try:
             cursor = self.referrals.find({"referrer_id": user_id})
             referrals = await cursor.to_list(length=None)
@@ -251,6 +306,10 @@ class ReferralManager:
     
     async def get_referral_stats(self, user_id: int) -> Dict[str, Any]:
         """Get referral statistics for a user"""
+        if not self.db:
+            print("Database not available")
+            return {}
+            
         try:
             total_referrals = await self.referrals.count_documents({"referrer_id": user_id})
             completed_referrals = await self.referrals.count_documents({
@@ -286,6 +345,10 @@ class ReferralManager:
     
     async def claim_bonus(self, user_id: int, bonus_id: str) -> bool:
         """Claim a referral bonus"""
+        if not self.db:
+            print("Database not available")
+            return False
+            
         try:
             bonus = await self.referral_bonuses.find_one({"_id": bonus_id, "user_id": user_id})
             if not bonus or bonus["status"] != "pending":

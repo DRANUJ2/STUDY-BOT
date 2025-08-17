@@ -19,45 +19,66 @@ logger.setLevel(logging.INFO)
 # Global cache for DB size
 _db_stats_cache = {"timestamp": None, "primary_size": 0.0}
 
-# Primary DB
-client = AsyncIOMotorClient(DATABASE_URI)
-db = client[DATABASE_NAME]
-instance = Instance.from_db(db)
+# Primary DB - Initialize with error handling
+try:
+    client = AsyncIOMotorClient(DATABASE_URI)
+    db = client[DATABASE_NAME]
+    instance = Instance.from_db(db)
+except Exception as e:
+    print(f"Warning: Could not initialize primary database connection in ia_filterdb.py: {e}")
+    client = None
+    db = None
+    instance = None
 
-# Secondary DB
-client2 = AsyncIOMotorClient(DATABASE_URI2)
-db2 = client2[DATABASE_NAME]
-instance2 = Instance.from_db(db2)
+# Secondary DB - Initialize with error handling
+try:
+    client2 = AsyncIOMotorClient(DATABASE_URI2)
+    db2 = client2[DATABASE_NAME]
+    instance2 = Instance.from_db(db2)
+except Exception as e:
+    print(f"Warning: Could not initialize secondary database connection in ia_filterdb.py: {e}")
+    client2 = None
+    db2 = None
+    instance2 = None
 
-@instance.register
-class Media(Document):
-    """Media document for primary database"""
-    file_id = fields.StringField(attribute="_id")
-    file_ref = fields.StringField(allow_none=True)
-    file_name = fields.StringField(required=True)
-    file_size = fields.IntegerField(required=True)
-    file_type = fields.StringField(allow_none=True)
-    mime_type = fields.StringField(allow_none=True)
-    caption = fields.StringField(allow_none=True)
+# Only register document classes if instances are available
+if instance:
+    @instance.register
+    class Media(Document):
+        """Media document for primary database"""
+        file_id = fields.StringField(attribute="_id")
+        file_ref = fields.StringField(allow_none=True)
+        file_name = fields.StringField(required=True)
+        file_size = fields.IntegerField(required=True)
+        file_type = fields.StringField(allow_none=True)
+        mime_type = fields.StringField(allow_none=True)
+        caption = fields.StringField(allow_none=True)
 
-    class Meta:
-        indexes = ("$file_name",)
-        collection_name = COLLECTION_NAME
+        class Meta:
+            indexes = ("$file_name",)
+            collection_name = COLLECTION_NAME
+else:
+    class Media:
+        pass
 
-@instance2.register
-class Media2(Document):
-    """Media document for secondary database"""
-    file_id = fields.StringField(attribute="_id")
-    file_ref = fields.StringField(allow_none=True)
-    file_name = fields.StringField(required=True)
-    file_size = fields.IntegerField(required=True)
-    file_type = fields.StringField(allow_none=True)
-    mime_type = fields.StringField(allow_none=True)
-    caption = fields.StringField(allow_none=True)
+if instance2:
+    @instance2.register
+    class Media2(Document):
+        """Media document for secondary database"""
+        file_id = fields.StringField(attribute="_id")
+        file_ref = fields.StringField(allow_none=True)
+        file_name = fields.StringField(required=True)
+        file_size = fields.IntegerField(required=True)
+        file_type = fields.StringField(allow_none=True)
+        mime_type = fields.StringField(allow_none=True)
+        caption = fields.StringField(allow_none=True)
 
-    class Meta:
-        indexes = ("$file_name",)
-        collection_name = COLLECTION_NAME
+        class Meta:
+            indexes = ("$file_name",)
+            collection_name = COLLECTION_NAME
+else:
+    class Media2:
+        pass
 
 async def check_db_size(db):
     """Check database size and cache results"""
