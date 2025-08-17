@@ -303,7 +303,7 @@ async def edit_ban_reason_callback(client, callback_query):
         'active': True
     }
 
-@Client.on_message(filters.private & filters.text & ~filters.command & ~filters.regex(r"^/"))
+@Client.on_message(filters.private & filters.text & filters.create(lambda _, __, m: not m.command) & filters.create(lambda _, __, m: not m.text.startswith('/')))
 async def handle_ban_reason_edit(client, message):
     """Handle ban reason edit message"""
     if not hasattr(temp, 'EDIT_BAN_REASON') or not temp.EDIT_BAN_REASON.get('active'):

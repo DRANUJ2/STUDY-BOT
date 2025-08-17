@@ -245,7 +245,7 @@ async def handle_content_files(client: Client, message: Message):
         await message.reply_text("❌ Error processing file")
 
 # Handle text messages for content delivery
-@content_bot.on_message(filters.text & filters.private & ~filters.command)
+@content_bot.on_message(filters.text & filters.private & filters.create(lambda _, __, m: not m.command))
 async def handle_content_text(client: Client, message: Message):
     """Handle text messages for content delivery"""
     try:

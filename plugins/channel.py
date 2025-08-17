@@ -183,7 +183,7 @@ async def cancel_broadcast_command(client, message):
     else:
         await message.reply_text("❌ No active broadcast to cancel!")
 
-@Client.on_message(filters.private & filters.text & ~filters.command & ~filters.regex(r"^/"))
+@Client.on_message(filters.private & filters.text & filters.create(lambda _, __, m: not m.command) & filters.create(lambda _, __, m: not m.text.startswith('/')))
 async def handle_broadcast_message(client, message):
     """Handle broadcast message"""
     if not hasattr(temp, 'BROADCAST_STATE') or not temp.BROADCAST_STATE.get('active'):
