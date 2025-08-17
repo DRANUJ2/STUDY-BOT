@@ -112,9 +112,9 @@ class ReferralManager:
     def __init__(self, db_instance):
         self.db = db_instance
         if db_instance:
-            self.referrals = db.referrals
-            self.referral_codes = db.referral_codes
-            self.referral_bonuses = db.referral_bonuses
+            self.referrals = db_instance.referrals
+            self.referral_codes = db_instance.referral_codes
+            self.referral_bonuses = db_instance.referral_bonuses
         else:
             self.referrals = None
             self.referral_codes = None
