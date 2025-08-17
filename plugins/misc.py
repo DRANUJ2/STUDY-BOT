@@ -439,7 +439,7 @@ async def report_issue_callback(client, callback_query):
         'active': True
     }
 
-@Client.on_message(filters.private & filters.text & ~filters.command & ~filters.regex(r"^/"))
+@Client.on_message(filters.private & filters.text & filters.create(lambda _, __, m: not m.command) & filters.create(lambda _, __, m: not m.text.startswith('/')))
 async def handle_issue_report(client, message):
     """Handle issue report message"""
     if not hasattr(temp, 'REPORT_ISSUE') or not temp.REPORT_ISSUE.get('active'):
