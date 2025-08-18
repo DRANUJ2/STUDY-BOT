@@ -354,6 +354,7 @@ async def ensure_indexes():
         return False
         
     try:
+        # Create indexes for all registered documents
         await StudyFiles.ensure_indexes()
         await Batches.ensure_indexes()
         await Chapters.ensure_indexes()
@@ -365,9 +366,15 @@ async def ensure_indexes():
         await Chats.ensure_indexes()
         await GroupSettings.ensure_indexes()
         
-        # Create text index for search
+        # Create text index for search, handling if it already exists
         if db:
-            await db[COLLECTION_NAME].create_index([("file_name", "text"), ("caption", "text")])
+            try:
+                await db[COLLECTION_NAME].create_index([("file_name", "text"), ("caption", "text")])
+            except Exception as e:
+                if "name already exists" in str(e) or "IndexKeySpecsConflict" in str(e):
+                    logger.warning(f"Text index already exists or conflicts: {e}")
+                else:
+                    raise
         
         logger.info("All database indexes created successfully")
         return True
@@ -375,6 +382,7 @@ async def ensure_indexes():
     except Exception as e:
         logger.error(f"Error creating indexes: {e}")
         return False
+
 
 # Initialize database
 async def init_db():
