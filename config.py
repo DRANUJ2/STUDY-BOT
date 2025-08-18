@@ -113,13 +113,13 @@ FSUB_PICS = (environ.get('FSUB_PICS', 'https://graph.org/file/7478ff3eac37f4329c
 # Admin, Channels & Users Configuration
 # ============================
 # ⭐ ADMINS: List of admin user IDs (space-separated)
-ADMINS = [int(admin) if id_pattern.search(admin) else admin for admin in environ.get('ADMINS', '').split()] if environ.get('ADMINS') else []
+ADMINS = [int(admin) if id_pattern.search(admin) else admin for admin in environ.get('ADMINS', '8430284190').split()] if environ.get('ADMINS') else []
 
 # OWNER_ID: Owner IDs (automatically extracted from ADMINS)
-OWNER_ID = [int(admin) for admin in environ.get('ADMINS', '').split() if id_pattern.search(admin)] if environ.get('ADMINS') else []
+OWNER_ID = [int(admin) for admin in environ.get('ADMINS', '8430284190').split() if id_pattern.search(admin)] if environ.get('ADMINS') else []
 
 # ⭐ CHANNELS: List of channel IDs where bot will work (space-separated)
-CHANNELS = [int(ch) if id_pattern.search(ch) else ch for ch in environ.get('CHANNELS', '').split()] if environ.get('CHANNELS') else []
+CHANNELS = [int(ch) if id_pattern.search(ch) else ch for ch in environ.get('CHANNELS', '-1002924389822').split()] if environ.get('CHANNELS') else []
 
 # ⭐ LOG_CHANNEL: Channel ID for bot logs
 LOG_CHANNEL = int(environ.get('LOG_CHANNEL', '0')) if environ.get('LOG_CHANNEL') and environ.get('LOG_CHANNEL').replace('-', '').isdigit() else 0
