@@ -13,6 +13,10 @@ from aiohttp import web
 import logging
 import logging.config
 
+import builtins
+open = builtins.open
+
+
 # Import study bot specific modules
 from database.study_db import init_db, client
 from config import *
