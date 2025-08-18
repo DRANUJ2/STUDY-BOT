@@ -13,8 +13,7 @@ from aiohttp import web
 import logging
 import logging.config
 
-import builtins
-open = builtins.open
+
 
 
 # Import study bot specific modules
