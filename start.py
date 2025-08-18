@@ -120,6 +120,8 @@ def main():
         print(f"❌ Error starting bot: {e}")
         logger.error(f"Error starting bot: {e}")
         sys.exit(1)
+    finally:
+        logging.shutdown()
 
 if __name__ == "__main__":
     main()
