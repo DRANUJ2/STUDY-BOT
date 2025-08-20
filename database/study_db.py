@@ -137,8 +137,8 @@ if instance:
         created_at = fields.DateTimeField(default_factory=lambda: datetime.now(timezone.utc))
         
         class Meta:
-        indexes = [("is_active",)]   # ✅ "batch_name" hata diya
-        collection_name = "batches"
+              indexes = [("is_active",)]   # ✅ "batch_name" hata diya
+              collection_name = "batches"
 
     @instance.register
     class Chapters(Document):
