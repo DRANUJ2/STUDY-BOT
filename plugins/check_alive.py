@@ -11,7 +11,7 @@ from datetime import datetime
 from typing import Dict, Any
 from pyrogram import Client, filters
 from pyrogram.types import Message, InlineKeyboardMarkup, InlineKeyboardButton
-from config import ADMINS
+from config import *
 
 logger = logging.getLogger(__name__)
 
