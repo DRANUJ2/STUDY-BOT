@@ -44,12 +44,17 @@ class StudyBotLogger:
         console_handler.setFormatter(console_formatter)
         self.logger.addHandler(console_handler)
         
+        # Make sure log directory exists
+        os.makedirs(self.log_dir, exist_ok=True)
+        
         # File handler for all logs
         all_log_file = self.log_dir / "study_bot.log"
         file_handler = logging.handlers.RotatingFileHandler(
-            all_log_file,
+            str(all_log_file),  # Convert Path to string
             maxBytes=10*1024*1024,  # 10MB
-            backupCount=5
+            backupCount=5,
+            encoding='utf-8',
+            mode='a'
         )
         file_handler.setLevel(logging.DEBUG)
         file_formatter = logging.Formatter(
@@ -61,9 +66,11 @@ class StudyBotLogger:
         # Error log handler
         error_log_file = self.log_dir / "errors.log"
         error_handler = logging.handlers.RotatingFileHandler(
-            error_log_file,
+            str(error_log_file),  # Convert Path to string
             maxBytes=5*1024*1024,  # 5MB
-            backupCount=3
+            backupCount=3,
+            encoding='utf-8',
+            mode='a'
         )
         error_handler.setLevel(logging.ERROR)
         error_formatter = logging.Formatter(
@@ -76,9 +83,11 @@ class StudyBotLogger:
         # Access log handler
         access_log_file = self.log_dir / "access.log"
         access_handler = logging.handlers.RotatingFileHandler(
-            access_log_file,
+            str(access_log_file),  # Convert Path to string
             maxBytes=5*1024*1024,  # 5MB
-            backupCount=3
+            backupCount=3,
+            encoding='utf-8',
+            mode='a'
         )
         access_handler.setLevel(logging.INFO)
         access_formatter = logging.Formatter(

@@ -17,11 +17,17 @@ sys.path.insert(0, str(Path(__file__).parent))
 
 def setup_logging():
     """Setup logging configuration"""
+    import logging.handlers  # Import handlers explicitly
+    
+    # Create logs directory if it doesn't exist
+    import os
+    os.makedirs("logs", exist_ok=True)
+    
     logging.basicConfig(
         level=logging.INFO,
         format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
         handlers=[
-            logging.FileHandler("study_bot.log"),
+            logging.FileHandler("logs/study_bot.log", mode='a', encoding='utf-8'),
             logging.StreamHandler(sys.stdout)
         ]
     )
