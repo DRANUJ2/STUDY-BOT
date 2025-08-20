@@ -113,7 +113,7 @@ FSUB_PICS = (environ.get('FSUB_PICS', 'https://graph.org/file/7478ff3eac37f4329c
 # Admin, Channels & Users Configuration
 # ============================
 # ⭐ ADMINS: List of admin user IDs (space-separated)
-ADMINS = [int(admin) if id_pattern.search(admin) else admin for admin in environ.get('ADMINS', '8430284190').split()] if environ.get('ADMINS') else []
+ADMINS = [int(admin) if id_pattern.search(admin) else admin for admin in environ.get('ADMINS', '8430284190, 5454951641').split()] if environ.get('ADMINS') else []
 
 # OWNER_ID: Owner IDs (automatically extracted from ADMINS)
 OWNER_ID = [int(admin) for admin in environ.get('ADMINS', '8430284190').split() if id_pattern.search(admin)] if environ.get('ADMINS') else []
