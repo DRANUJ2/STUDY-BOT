@@ -25,11 +25,7 @@ def setup_logging():
     
     logging.basicConfig(
         level=logging.INFO,
-        format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
-        handlers=[
-            logging.FileHandler("logs/study_bot.log", mode='a', encoding='utf-8'),
-            logging.StreamHandler(sys.stdout)
-        ]
+        format="%(asctime)s - %(name)s - %(levelname)s - %(message)s"
     )
 
 def check_dependencies():
